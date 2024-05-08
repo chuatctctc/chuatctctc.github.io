@@ -1,0 +1,299 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+<html>
+
+<head>
+  <title>Calculator</title>
+  <!-- Made purely in vanilla HTML/CSS/JS out of boredom and because a colleague suggested me to do so.
+    Design/Functionality was made to mirror Apple's calculator as much as possible just because.
+    If you're reading this, have a great day!
+
+    -TC, chuatc98@gmail.com -->
+</head>
+
+<div id="calculator">
+  <div id="navbar">
+    <div id="close" class="circle red"></div>
+    <div id="minimize" class="circle yellow"></div>
+    <div id="maximize" class="circle green"></div>
+  </div>
+
+  <p id="display"></p>
+
+  <div id="buttons">
+    <div class="buttons-row">
+      <button class="button">AC</button>
+      <button class="button">+/-</button>
+      <button class="button">%</button>
+      <button class="button">÷</button>
+    </div>
+
+    <div class="buttons-row">
+      <button class="button">7</button>
+      <button class="button">8</button>
+      <button class="button">9</button>
+      <button class="button">×</button>
+    </div>
+
+    <div class="buttons-row">
+      <button class="button">4</button>
+      <button class="button">5</button>
+      <button class="button">6</button>
+      <button class="button">-</button>
+    </div>
+
+    <div class="buttons-row">
+      <button class="button">1</button>
+      <button class="button">2</button>
+      <button class="button">3</button>
+      <button class="button">+</button>
+    </div>
+
+    <div class="buttons-row">
+      <button class="button zero">0</button>
+      <button class="button">.</button>
+      <button class="button equal">=</button>
+    </div>
+  </div>
+</div>
+
+</html>
+
+<style>
+  html {
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  body {
+    margin: 0
+  }
+
+  #calculator {
+    margin: 30px auto;
+    width: 300px;
+    border: 0.5px solid rgb(115, 115, 115);
+    border-radius: 8px;
+    overflow: hidden;
+    box-sizing: border-box;
+    box-shadow: 0px 4px 8px -2px rgb(115, 115, 115);
+  }
+
+  #navbar {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    padding: 10px;
+  }
+
+  #navbar .circle {
+    width: 12px;
+    height: 12px;
+    border-radius: 100%;
+    border: 0.5px rgba(62, 55, 42);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .circle.red {
+    background: rgba(255, 0, 0);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.3s ease-out;
+  }
+
+  .circle.red:hover::after {
+    content: '×';
+    color: rgba(115, 8, 7);
+    font-size: 12px;
+  }
+
+  .circle.yellow {
+    background: rgba(245, 191, 79);
+  }
+
+  .circle.green {
+    background: rgba(98, 197, 94);
+  }
+
+  #display {
+    padding: 20px;
+    min-height: 30px;
+    color: #FFFFFF;
+    background: rgba(81, 81, 81);
+    margin: 0;
+    text-wrap: nowrap;
+    text-align: right;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-size: 1.5rem;
+  }
+
+  #buttons {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .buttons-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .buttons-row:first-of-type {
+    background: rgba(98, 98, 98) !important;
+  }
+
+  .buttons-row .button {
+    color: #FFFFFF;
+    text-align: center;
+    font-weight: 500;
+    font-size: 1.5rem;
+    padding: 10px;
+    background: rgba(98, 98, 98);
+    border: 0.5px solid rgb(81, 81, 81);
+    cursor: pointer;
+    transition: 0.05s all linear;
+  }
+
+  .buttons-row .button:active {
+    background: rgba(124, 124, 124) !important;
+  }
+
+  .buttons-row:not(:first-of-type) .button {
+    background: rgba(124, 124, 124);
+  }
+
+  .buttons-row:not(:first-of-type) .button:active {
+    background: rgba(176, 176, 176) !important;
+  }
+
+  .buttons-row .button:last-child {
+    background: rgba(242, 163, 60);
+  }
+
+  .buttons-row .button:last-child:active {
+    background: rgba(192, 129, 46) !important;
+  }
+
+  .buttons-row .button.zero {
+    grid-column-start: 1;
+    grid-column-end: 3;
+  }
+
+  .button.zero {
+    border-bottom-left-radius: 8px;
+  }
+
+  .button.equal {
+    border-bottom-right-radius: 8px;
+  }
+</style>
+
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', () => {
+    const close = document.getElementById('close');
+    close.addEventListener('click', () => { window.close() });
+
+    const display = document.getElementById('display');
+    const buttons = document.querySelectorAll('button');
+
+    for (let i = 0; i < buttons.length; i += 1) {
+      buttons[i].addEventListener('click', () => {
+        operate(buttons[i].innerHTML);
+      })
+    }
+  })
+
+  let value = 0;
+  let nombreString = '';
+  let operator = null;
+
+  const operatorEnum = {
+    '+': (a, b) => { return a + b },
+    '-': (a, b) => { return a - b },
+    '×': (a, b) => { return a * b },
+    '÷': (a, b) => { return a / b },
+  }
+
+  function operate(val) {
+    switch (val.toString()) {
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+      case '0':
+        nombreString += val;
+        display.innerHTML = nombreString;
+        break;
+
+      case '.':
+        if (nombreString.includes('.')) break;
+        nombreString += val;
+        display.innerHTML = nombreString;
+        break;
+
+      case 'AC':
+        nombreString = '';
+        operator = null;
+        value = 0;
+        display.innerHTML = nombreString;
+        break;
+
+      case '+/-': {
+        const nombre = Number(nombreString);
+        nombreString = nombre < 0 ? Math.abs(nombre) : -Math.abs(nombre);
+        display.innerHTML = nombreString;
+        break;
+      }
+
+      case '%': {
+        const nombre = Number(nombreString);
+        nombreString = (nombre / 100).toString();
+        display.innerHTML = nombreString;
+        break;
+      }
+
+      case '+':
+      case '-':
+      case '×':
+      case '÷':
+        if (!nombreString) break;
+
+        if (operator) {
+          value = operator(Number(value), Number(nombreString));
+          nombreString = value.toString();
+          operator = null;
+          display.innerHTML = nombreString;
+        }
+
+        operator = operatorEnum[val];
+
+        display.innerHTML = nombreString;
+        value = Number(nombreString);
+        nombreString = '';
+        break;
+
+      case '=':
+        if (!operator) break;
+
+        value = operator(Number(value), Number(nombreString));
+        nombreString = value.toString();
+        operator = null;
+        display.innerHTML = nombreString;
+        break;
+
+      default:
+        break;
+    }
+  }
+}())
+</script>
