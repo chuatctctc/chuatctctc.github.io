@@ -6,6 +6,7 @@
 
 <head>
   <title>Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Made purely in vanilla HTML/CSS/JS out of boredom and because a colleague suggested me to do so.
     Design/Functionality was made to mirror Apple's calculator as much as possible just because.
     If you're reading this, have a great day!
@@ -62,13 +63,14 @@
 </html>
 
 <style>
+  /* Desktop */
   html {
     font-size: 16px;
     font-family: 'Inter', sans-serif;
   }
 
   body {
-    margin: 0
+    margin: 0;
   }
 
   #calculator {
@@ -189,6 +191,36 @@
 
   .button.equal {
     border-bottom-right-radius: 8px;
+  }
+
+
+  /* Mobile view */
+  @media only screen and (max-width: 768px) {
+    body {
+      width: 100vw;
+      height: 100vh;
+    }
+
+    #calculator {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      border-radius: 0;
+    }
+
+    #display {
+      flex: 1 1 auto;
+    }
+
+    .button.zero {
+      border-bottom-left-radius: 0;
+    }
+
+    .button.equal {
+      border-bottom-right-radius: 0;
+    }
   }
 </style>
 
