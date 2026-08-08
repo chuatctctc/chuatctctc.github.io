@@ -1,0 +1,1897 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Silly Billy — split the bill</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44'><rect width='44' height='44' rx='12' fill='%23f97316'/><text x='22' y='22' text-anchor='middle' dominant-baseline='central' font-size='20'>🧾</text></svg>" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js" defer></script>
+  <style>
+    /* Dark-mode palette: warm charcoal surfaces with high-contrast, low-glare accents. */
+    .dark {
+      color-scheme: dark;
+    }
+
+    .dark body {
+      background: #12100f;
+      color: #fffaf5;
+    }
+
+    .dark .bg-white {
+      background-color: #26211e !important;
+    }
+
+    .dark .bg-\[\#fffaf3\] {
+      background-color: #12100f !important;
+    }
+
+    .dark .bg-stone-50 {
+      background-color: #1d1917 !important;
+    }
+
+    .dark .bg-stone-100 {
+      background-color: #312a25 !important;
+    }
+
+    .dark .bg-stone-200,
+    .dark .bg-stone-200\/70 {
+      background-color: #40362f !important;
+    }
+
+    .dark .bg-stone-900 {
+      background-color: #191412 !important;
+    }
+
+    .dark .bg-orange-50 {
+      background-color: #3a2415 !important;
+    }
+
+    .dark .bg-orange-100 {
+      background-color: #522b13 !important;
+    }
+
+    .dark .bg-orange-500 {
+      background-color: #c2410c !important;
+    }
+
+    .dark .hover\:bg-orange-600:hover,
+    .dark .hover\:bg-orange-400:hover {
+      background-color: #ea580c !important;
+    }
+
+    .dark .bg-amber-50 {
+      background-color: #3a2b0e !important;
+    }
+
+    .dark .bg-emerald-50 {
+      background-color: #133426 !important;
+    }
+
+    .dark .text-stone-900,
+    .dark .text-stone-800,
+    .dark .text-stone-700 {
+      color: #fffaf5 !important;
+    }
+
+    .dark .text-stone-600,
+    .dark .text-stone-500,
+    .dark .text-stone-400 {
+      color: #d3c8bf !important;
+    }
+
+    .dark .text-orange-600 {
+      color: #fb923c !important;
+    }
+
+    .dark .text-orange-700 {
+      color: #fdba74 !important;
+    }
+
+    .dark .text-orange-800 {
+      color: #fed7aa !important;
+    }
+
+    .dark .text-orange-400 {
+      color: #fdba74 !important;
+    }
+
+    .dark .text-amber-800 {
+      color: #fde68a !important;
+    }
+
+    .dark .text-emerald-800,
+    .dark .text-emerald-700 {
+      color: #86efac !important;
+    }
+
+    .dark .border-stone-100,
+    .dark .border-stone-200,
+    .dark .border-stone-300 {
+      border-color: #5a4d44 !important;
+    }
+
+    .dark .border-orange-200,
+    .dark .border-orange-300 {
+      border-color: #8a4517 !important;
+    }
+
+    .dark .border-emerald-200 {
+      border-color: #27734c !important;
+    }
+
+    .dark input,
+    .dark select {
+      background-color: #1d1917 !important;
+      color: #fffaf5 !important;
+      border-color: #6b5a4d !important;
+    }
+
+    .dark .hover\:bg-stone-50:hover,
+    .dark .hover\:bg-stone-100:hover {
+      background-color: #40362f !important;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-[#fffaf3] font-sans text-stone-900 selection:bg-orange-200">
+  <main class="mx-auto max-w-6xl px-4 py-7 sm:px-6 sm:py-10">
+    <header class="mb-8 flex items-center justify-between gap-4">
+      <a href="#" class="flex items-center gap-3" aria-label="Start again">
+        <span class="grid h-11 w-11 place-items-center rounded-2xl bg-orange-500 text-xl shadow-sm">🧾</span>
+        <span><span class="block text-xl font-black tracking-tight">SILLYBILLY</span><span
+            class="block text-xs font-medium text-stone-500">For those who are forced to pay first</span></span>
+      </a>
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" type="button" aria-pressed="false"
+          class="rounded-full border border-stone-200 bg-white p-2 text-sm font-semibold text-stone-600 shadow-sm hover:border-orange-300 hover:text-orange-600">
+          <span class="!min-w-[20px] !block" aria-hidden="true">🌙</span><span class="sr-only">Toggle dark mode</span>
+        </button>
+        <button id="reset-btn" type="button" aria-pressed="false"
+          class="rounded-full border border-stone-200 bg-white p-2 text-sm font-semibold text-stone-600 shadow-sm hover:border-orange-300 hover:text-orange-600">
+          <span class="!min-w-[20px] !block" aria-hidden="true">↻</span><span class="sr-only">Restart</span>
+        </button>
+      </div>
+    </header>
+
+    <nav class="mb-8 grid grid-cols-4 gap-2 rounded-2xl bg-stone-200/70 p-1.5" aria-label="Steps">
+      <button data-step-nav="1" class="step-nav rounded-xl px-3 py-3 text-left text-sm font-bold">
+        <span class="md:mr-2 inline-grid h-6 w-6 place-items-center rounded-full bg-white text-xs">1</span>Bill
+      </button>
+      <button data-step-nav="2" class="step-nav rounded-xl px-3 py-3 text-left text-sm font-bold">
+        <span class="md:mr-2 inline-grid h-6 w-6 place-items-center rounded-full bg-white text-xs">2</span>People
+      </button>
+      <button data-step-nav="3" class="step-nav rounded-xl px-3 py-3 text-left text-sm font-bold">
+        <span class="md:mr-2 inline-grid h-6 w-6 place-items-center rounded-full bg-white text-xs">3</span>Split
+      </button>
+      <button data-step-nav="4" class="step-nav rounded-xl px-3 py-3 text-left text-sm font-bold">
+        <span class="md:mr-2 inline-grid h-6 w-6 place-items-center rounded-full bg-white text-xs">4</span>Settle
+      </button>
+    </nav>
+
+    <section id="step-1" class="step-panel">
+      <div class="mb-7 max-w-2xl">
+        <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
+          Step 1 of 4
+        </p>
+        <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
+          What did you all get?
+        </h1>
+        <p class="mt-3 text-lg leading-relaxed text-stone-600">
+          Snap or upload the receipt. We’ll pull out the line items, then you
+          can correct anything that looks suspicious.
+        </p>
+      </div>
+
+      <div id="upload-zone"
+        class="rounded-3xl border-2 border-dashed border-orange-200 bg-white p-5 shadow-sm transition duration-150 sm:p-8">
+        <div class="grid items-center gap-6 md:grid-cols-[1fr_1.2fr]">
+          <div id="preview-wrap" class="grid min-h-52 place-items-center overflow-hidden rounded-2xl bg-orange-50">
+            <div id="preview-empty" class="p-7 text-center">
+              <span class="text-5xl">📸</span>
+              <p class="mt-3 font-bold">Receipt goes here</p>
+              <p class="mt-1 text-sm text-stone-500">
+                JPG, PNG, HEIC, or a fresh photo
+              </p>
+            </div>
+            <img id="receipt-preview" class="hidden max-h-72 w-full cursor-zoom-in object-contain"
+              alt="Your uploaded receipt — click to zoom" role="button" tabindex="0" />
+          </div>
+          <div>
+            <h2 class="text-2xl font-extrabold">
+              Bring on the crumpled paper.
+            </h2>
+            <p class="mt-2 text-stone-600">
+              Drag a receipt image here, or upload one. Good lighting and a
+              flat receipt give the most reliable result.
+            </p>
+            <div class="mt-5 flex flex-wrap gap-3">
+              <label
+                class="cursor-pointer rounded-xl bg-stone-900 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-stone-700">Upload
+                receipt<input id="receipt-input" type="file" accept="image/*" class="hidden" /></label>
+              <button id="camera-btn" type="button"
+                class="rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 hover:border-orange-300">
+                Use camera
+              </button>
+              <button id="sample-btn"
+                class="rounded-xl px-3 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50">
+                Try sample data
+              </button>
+            </div>
+            <div id="ocr-status" class="mt-5 hidden rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800"
+              role="status"></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="items-review" class="mt-8 hidden">
+        <div class="mb-4 flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h2 class="text-2xl font-extrabold">Quick receipt check</h2>
+            <p class="mt-1 text-stone-600">
+              Edit the wording or price, remove non-items, then add anything
+              we missed.
+            </p>
+          </div>
+          <button id="add-item-btn"
+            class="rounded-xl border border-orange-300 bg-orange-50 px-4 py-2.5 text-sm font-bold text-orange-700 hover:bg-orange-100">
+            + Add item
+          </button>
+        </div>
+        <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
+          <table class="w-full text-left">
+            <thead class="bg-stone-50 text-xs font-bold uppercase tracking-wider text-stone-500">
+              <tr>
+                <th class="px-4 py-3">Item</th>
+                <th class="w-32 px-4 py-3 text-right">Price (RM)</th>
+                <th class="w-28 px-2 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="items-body"></tbody>
+          </table>
+          <div class="flex justify-end border-t border-stone-100 px-4 py-3 text-lg font-black">
+            Items total
+            <span id="items-total" class="ml-5 text-orange-600">RM0.00</span>
+          </div>
+        </div>
+        <div class="mt-4 rounded-2xl border border-orange-200 bg-orange-50 p-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h3 class="font-extrabold">Receipt charges</h3>
+              <p class="text-sm text-stone-600">
+                Tick only the charges printed on the receipt.
+              </p>
+            </div>
+            <p class="text-lg font-black text-orange-700">
+              Net total <span id="receipt-net-total">RM0.00</span>
+            </p>
+          </div>
+          <div class="mt-4 flex flex-col md:flex-row flex-wrap gap-3">
+            <label
+              class="flex cursor-pointer items-center gap-3 rounded-xl border border-orange-200 bg-white px-4 py-3 font-bold"><input
+                id="sst-checkbox" type="checkbox" class="h-4 w-4 accent-orange-500" />
+              SST <span class="text-sm text-stone-500">6%</span></label>
+            <label
+              class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-3 font-bold"><input
+                id="service-checkbox" type="checkbox" class="h-4 w-4 accent-orange-500" />
+              Service Charge
+              <input id="service-rate-input" type="number" min="0" max="100" step="0.01" value="10"
+                class="ml-auto md:ml-4 w-14 rounded-lg border border-stone-200 px-2 py-1 text-right text-sm outline-none ring-orange-300 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Service charge percentage" disabled /><span class="text-sm text-stone-500">%</span></label>
+            <label
+              class="flex items-center gap-2 rounded-xl border border-orange-200 bg-white px-4 py-3 font-bold"><input
+                id="rounding-checkbox" type="checkbox" class="h-4 w-4 accent-orange-500" />
+              Rounding adj.
+              <span class="text-sm text-stone-500">RM</span><input id="rounding-input" type="number" step="0.01"
+                value="0"
+                class="ml-auto md:ml-4 w-20 rounded-lg border border-stone-200 px-2 py-1 text-right text-sm outline-none ring-orange-300 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                aria-label="Rounding adjustment in RM" disabled /></label>
+          </div>
+          <p id="receipt-charges-breakdown" class="mt-3 text-sm font-medium text-stone-600">
+            No extra charges selected.
+          </p>
+        </div>
+        <details id="ocr-details" class="mt-3 rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-600">
+          <summary class="cursor-pointer font-semibold">
+            View the raw OCR text
+          </summary>
+          <pre id="ocr-text"
+            class="mt-3 overflow-auto whitespace-pre-wrap rounded-lg bg-white p-3 text-xs leading-relaxed text-stone-700"></pre>
+        </details>
+        <div class="mt-6 flex justify-end">
+          <button data-next="2"
+            class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600">
+            Add people →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section id="step-2" class="step-panel hidden">
+      <div class="mb-7 max-w-2xl">
+        <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
+          Step 2 of 4
+        </p>
+        <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
+          Who’s in on this?
+        </h1>
+        <p class="mt-3 text-lg text-stone-600">
+          Add everyone who might owe a share. Press Enter after each name.
+        </p>
+      </div>
+      <div class="grid gap-6 lg:grid-cols-[.8fr_1.2fr]">
+        <form id="person-form" class="rounded-3xl bg-stone-900 p-6 text-white shadow-lg">
+          <label for="person-input" class="text-sm font-bold text-orange-200">A person’s name</label><input
+            id="person-input" autocomplete="off" placeholder="e.g. TC"
+            class="mt-3 w-full rounded-xl border-0 bg-white px-4 py-3 text-lg font-semibold text-stone-900 outline-none ring-orange-400 focus:ring-4" /><button
+            class="mt-3 w-full rounded-xl bg-orange-500 px-4 py-3 font-bold hover:bg-orange-400">
+            Add victim
+          </button>
+          <p class="mt-3 text-center text-xs text-stone-400">
+            Tip: everyone can share a single item — just drop it on each
+            person.
+          </p>
+        </form>
+        <div class="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm">
+          <div class="border-b border-stone-100 px-5 py-4">
+            <h2 class="font-extrabold">
+              Your bill squad
+              <span id="people-count" class="text-stone-400">(0)</span>
+            </h2>
+          </div>
+          <div id="people-list" class="divide-y divide-stone-100"></div>
+          <p id="no-people" class="p-8 text-center text-stone-500">
+            No one yet. Start with yourself?
+          </p>
+        </div>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <button data-prev="1" class="rounded-xl px-4 py-3 font-bold text-stone-500 hover:bg-stone-100">
+          ← Back</button><button id="to-split-btn"
+          class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300"
+          disabled>
+          Assign items →
+        </button>
+      </div>
+    </section>
+
+    <section id="step-3" class="step-panel hidden">
+      <div class="mb-7 flex flex-wrap items-end justify-between gap-5">
+        <div class="max-w-2xl">
+          <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
+            Step 3 of 4
+          </p>
+          <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
+            Put the tab where it belongs.
+          </h1>
+          <p class="mt-3 text-lg text-stone-600">
+            <span class="lg:hidden">Add receipt items to each person. Add the same item to several
+              people to split it equally.</span><span class="hidden lg:inline">Drag a receipt item onto a person. Drop
+              the same item on
+              several people to split it equally.</span>
+          </p>
+        </div>
+        <div class="rounded-2xl bg-orange-100 px-5 py-3 text-right">
+          <p class="text-xs font-bold uppercase tracking-wide text-orange-700">
+            Assigned total
+          </p>
+          <p id="assigned-total" class="text-2xl font-black text-orange-800">
+            RM0.00 / RM0.00
+          </p>
+          <p id="assigned-charges" class="mt-1 text-xs font-semibold text-orange-700"></p>
+        </div>
+      </div>
+      <div class="space-y-6 md:grid md:grid-cols-[.8fr_1.2fr] md:items-start md:gap-6 md:space-y-0">
+        <section>
+          <div id="allocation-list" class="space-y-4"></div>
+        </section>
+        <aside class="overflow-hidden rounded-3xl border border-stone-200 bg-white shadow-sm md:order-first h-full">
+          <div class="border-b border-stone-100 px-5 py-4">
+            <h2 class="font-extrabold">Receipt items</h2>
+            <p class="mt-1 text-sm text-stone-500">
+              <span class="lg:hidden">See where each receipt item is currently assigned.</span><span
+                class="hidden lg:inline">Drag an item to a person, or drop it here to unassign
+                it.</span>
+            </p>
+          </div>
+          <div id="receipt-item-list" data-drop-unassigned class="space-y-2 p-3"></div>
+        </aside>
+      </div>
+      <div class="mt-6 flex justify-between">
+        <button data-prev="2" class="rounded-xl px-4 py-3 font-bold text-stone-500 hover:bg-stone-100">
+          ← Back</button><button id="settle-btn"
+          class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300">
+          Review settlement →
+        </button>
+      </div>
+    </section>
+
+    <section id="step-4" class="step-panel hidden">
+      <div class="mb-7 flex flex-wrap items-end justify-between gap-5">
+        <div class="max-w-2xl">
+          <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
+            Step 4 of 4
+          </p>
+          <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
+            All sorted 🎉
+          </h1>
+          <p class="mt-3 text-lg text-stone-600">
+            Here’s what each person should pay. Shared items are divided
+            evenly.
+          </p>
+        </div>
+        <div class="rounded-2xl bg-emerald-50 px-5 py-3 text-right">
+          <p class="text-xs font-bold uppercase tracking-wide text-emerald-800">
+            Receipt total
+          </p>
+          <p id="settlement-total" class="text-2xl font-black text-emerald-700">
+            RM0.00
+          </p>
+          <p id="settlement-status" class="mt-1 text-xs font-semibold text-emerald-800"></p>
+        </div>
+      </div>
+      <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 sm:p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-black">Who owes what</h2>
+            <p class="mt-1 text-sm text-emerald-800">
+              Ready to screenshot or send to the group chat.
+            </p>
+          </div>
+          <button id="copy-summary-btn" type="button"
+            class="rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+            Copy summary
+          </button>
+        </div>
+        <div id="final-list" class="mt-5 grid gap-3 sm:grid-cols-2"></div>
+      </div>
+      <div class="mt-6 flex flex-wrap justify-between gap-3">
+        <button data-prev="3" class="rounded-xl px-4 py-3 font-bold text-stone-500 hover:bg-stone-100">
+          ← Edit assignments</button><button id="settlement-reset-btn"
+          class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300">
+          Start a new bill
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <div id="camera-modal"
+    class="fixed inset-0 z-50 hidden items-end bg-stone-950/70 p-3 sm:items-center sm:justify-center" role="dialog"
+    aria-modal="true" aria-labelledby="camera-title">
+    <div class="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl">
+      <div class="flex items-center justify-between px-5 py-4">
+        <div>
+          <h2 id="camera-title" class="font-black">Take a receipt photo</h2>
+          <p class="text-sm text-stone-500">
+            Keep the whole receipt in frame.
+          </p>
+        </div>
+        <button id="close-camera-btn" class="rounded-lg px-3 py-2 text-xl text-stone-500 hover:bg-stone-100"
+          aria-label="Close camera">
+          ×
+        </button>
+      </div>
+      <div class="bg-stone-900">
+        <video id="camera-video" autoplay playsinline muted class="max-h-[65vh] w-full object-contain"
+          aria-label="Live camera preview"></video><canvas id="camera-canvas" class="hidden"></canvas>
+      </div>
+      <div class="flex gap-3 p-4">
+        <button id="cancel-camera-btn"
+          class="flex-1 rounded-xl border border-stone-200 px-4 py-3 font-bold text-stone-600 hover:bg-stone-50">
+          Cancel</button><button id="capture-camera-btn"
+          class="flex-1 rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600">
+          Capture photo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="receipt-zoom-modal" class="fixed inset-0 z-[60] hidden bg-stone-950/90 p-4 sm:p-8" role="dialog"
+    aria-modal="true" aria-label="Zoomed receipt image">
+    <div class="mx-auto flex h-full max-w-5xl flex-col">
+      <div class="mb-3 flex justify-end">
+        <button id="close-receipt-zoom-btn"
+          class="rounded-xl bg-white/15 px-4 py-2 text-sm font-bold text-white backdrop-blur hover:bg-white/25">
+          Close ×
+        </button>
+      </div>
+      <div class="flex-1 overflow-auto rounded-2xl bg-black/30 text-center">
+        <img id="zoomed-receipt" class="mx-auto min-h-full max-w-none object-contain" alt="Zoomed uploaded receipt" />
+      </div>
+    </div>
+  </div>
+
+  <div id="split-item-modal"
+    class="fixed inset-0 z-[70] hidden items-end bg-stone-950/70 p-4 sm:items-center sm:justify-center" role="dialog"
+    aria-modal="true" aria-labelledby="split-item-title">
+    <form id="split-item-form" class="w-full max-w-md rounded-3xl bg-white p-6 shadow-2xl">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-[.14em] text-orange-600">
+            Split a line item
+          </p>
+          <h2 id="split-item-title" class="mt-1 text-2xl font-black">
+            Make individual items
+          </h2>
+        </div>
+        <button id="close-split-modal-btn" type="button"
+          class="rounded-lg px-2 text-xl text-stone-400 hover:bg-stone-100" aria-label="Close">
+          ×
+        </button>
+      </div>
+      <p id="split-item-name" class="mt-4 rounded-xl bg-stone-100 px-4 py-3 font-bold text-stone-800"></p>
+      <label for="split-count-input" class="mt-5 block text-sm font-bold text-stone-700">How many individual
+        items?</label><input id="split-count-input" type="number" min="2" max="50" value="2"
+        class="mt-2 w-full rounded-xl border border-stone-300 px-4 py-3 text-lg font-bold outline-none ring-orange-300 focus:ring-4" />
+      <p id="split-item-preview" class="mt-3 text-sm font-semibold text-stone-600"></p>
+      <div class="mt-6 flex gap-3">
+        <button id="cancel-split-btn" type="button"
+          class="flex-1 rounded-xl border border-stone-200 px-4 py-3 font-bold text-stone-600 hover:bg-stone-50">
+          Cancel</button><button
+          class="flex-1 rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600">
+          Split item
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <div id="item-picker-modal"
+    class="fixed inset-0 z-[80] hidden items-end bg-stone-950/70 sm:items-center sm:justify-center" role="dialog"
+    aria-modal="true" aria-labelledby="item-picker-title">
+    <div class="max-h-[82vh] w-full sm:max-w-lg overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+      <div class="flex items-start justify-between border-b border-stone-100 px-5 py-4">
+        <div>
+          <p class="text-sm font-bold uppercase tracking-[.14em] text-orange-600">
+            Add a receipt item
+          </p>
+          <h2 id="item-picker-title" class="mt-1 text-2xl font-black">
+            Add to bill
+          </h2>
+          <p id="item-picker-help" class="mt-1 text-sm text-stone-500">
+            Items already assigned can be shared.
+          </p>
+        </div>
+        <button id="close-item-picker-btn" type="button"
+          class="rounded-lg px-2 text-xl text-stone-400 hover:bg-stone-100" aria-label="Close item picker">
+          ×
+        </button>
+      </div>
+      <div id="item-picker-list" class="max-h-[60vh] space-y-5 overflow-y-auto p-4"></div>
+    </div>
+  </div>
+
+  <div id="assignment-toast"
+    class="hidden fixed top-5 md:bottom-5 md:top-auto left-1/2 z-[90] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-stone-800 px-4 py-3 text-center text-xs font-bold text-white shadow-xl"
+    role="status" aria-live="polite"></div>
+
+  <script>
+    const state = {
+      step: 1,
+      items: [],
+      people: [],
+      assignments: {},
+      ocrText: "",
+      charges: {
+        sst: false,
+        service: false,
+        serviceRate: 10,
+        roundingEnabled: false,
+        rounding: 0,
+      },
+    };
+    const money = (n) => `RM${Number(n || 0).toFixed(2)}`;
+    const id = () => Math.random().toString(36).slice(2, 10);
+    const sampleItems = [["Chicken Rice", 12]];
+    let cameraStream = null;
+    let ocrWorker = null;
+    let splitTargetId = null;
+    let pickerPersonId = null;
+    let assignmentToastTimer = null;
+    let allocationResizeTimer = null;
+
+    function setTheme(isDark) {
+      document.documentElement.classList.toggle("dark", isDark);
+      const button = document.querySelector("#theme-toggle");
+      button.setAttribute("aria-pressed", String(isDark));
+      button.querySelector('[aria-hidden="true"]').textContent = isDark
+        ? "☀️"
+        : "🌙";
+      try {
+        localStorage.setItem("sillybilly-theme", isDark ? "dark" : "light");
+      } catch (_) {
+        /* Storage may be unavailable. */
+      }
+    }
+
+    function setStep(step) {
+      if (step === 2 && !state.items.length) {
+        alert("Add at least one receipt item first.");
+        return;
+      }
+      if ((step === 3 || step === 4) && !state.people.length) {
+        alert("Add at least one person first.");
+        return;
+      }
+      state.step = step;
+      document
+        .querySelectorAll(".step-panel")
+        .forEach((panel) =>
+          panel.classList.toggle("hidden", panel.id !== `step-${step}`),
+        );
+      document.querySelectorAll(".step-nav").forEach((btn) => {
+        const current = +btn.dataset.stepNav === step;
+        btn.className = `step-nav rounded-xl flex flex-col gap-2 items-center justify-center md:block px-3 py-3 text-left text-sm font-bold transition ${current ? "[&_span]:bg-orange-400 [&_span]:text-orange-50 bg-white text-stone-900 shadow-sm" : "text-stone-500 hover:text-stone-700"}`;
+      });
+      if (step === 3) renderAllocation();
+      if (step === 4) renderFinalSummary();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    function itemTotal() {
+      return state.items.reduce(
+        (sum, item) => sum + Number(item.price || 0),
+        0,
+      );
+    }
+    function roundMoney(value) {
+      return Math.round(value * 100) / 100;
+    }
+    function chargesFor(subtotal, applyRounding = false) {
+      const sst = state.charges.sst ? roundMoney(subtotal * 0.06) : 0;
+      const service = state.charges.service
+        ? roundMoney((subtotal * state.charges.serviceRate) / 100)
+        : 0;
+      const beforeRounding = roundMoney(subtotal + sst + service);
+      const rounding =
+        applyRounding && state.charges.roundingEnabled
+          ? state.charges.rounding
+          : 0;
+      return {
+        subtotal: roundMoney(subtotal),
+        sst,
+        service,
+        beforeRounding,
+        rounding,
+        total: roundMoney(beforeRounding + rounding),
+      };
+    }
+    function receiptBreakdown() {
+      return chargesFor(itemTotal(), true);
+    }
+    function roundingFor(personId) {
+      const receipt = receiptBreakdown();
+      if (!receipt.rounding) return 0;
+      const recipients = state.people
+        .map((person) => ({
+          id: person.id,
+          beforeRounding: chargesFor(billFor(person.id)).beforeRounding,
+        }))
+        .filter((person) => person.beforeRounding > 0)
+        .sort(
+          (a, b) =>
+            b.beforeRounding - a.beforeRounding || a.id.localeCompare(b.id),
+        );
+      const adjustmentCents = Math.round(Math.abs(receipt.rounding) * 100);
+      const totalBeforeRounding = recipients.reduce(
+        (sum, person) => sum + person.beforeRounding,
+        0,
+      );
+      if (!totalBeforeRounding) return 0;
+      const allocation = recipients.map((person) => ({
+        ...person,
+        exact:
+          (adjustmentCents * person.beforeRounding) / totalBeforeRounding,
+      }));
+      allocation.forEach(
+        (person) => (person.cents = Math.floor(person.exact)),
+      );
+      let remaining =
+        adjustmentCents -
+        allocation.reduce((sum, person) => sum + person.cents, 0);
+      allocation.sort(
+        (a, b) =>
+          b.exact - b.cents - (a.exact - a.cents) || a.id.localeCompare(b.id),
+      );
+      for (let index = 0; index < remaining; index++)
+        allocation[index % allocation.length].cents++;
+      return (
+        ((allocation.find((person) => person.id === personId)?.cents || 0) /
+          100) *
+        Math.sign(receipt.rounding)
+      );
+    }
+    function renderCharges(syncControls = true) {
+      const charges = receiptBreakdown();
+      if (syncControls) {
+        document.querySelector("#sst-checkbox").checked = state.charges.sst;
+        document.querySelector("#service-checkbox").checked =
+          state.charges.service;
+        document.querySelector("#service-rate-input").value =
+          state.charges.serviceRate;
+        document.querySelector("#service-rate-input").disabled =
+          !state.charges.service;
+
+        document.querySelector("#rounding-checkbox").checked =
+          state.charges.roundingEnabled;
+        document.querySelector("#rounding-input").value =
+          state.charges.rounding || 0;
+        document.querySelector("#rounding-input").disabled =
+          !state.charges.roundingEnabled;
+      }
+      document.querySelector("#receipt-net-total").textContent = money(
+        charges.total,
+      );
+      const parts = [];
+      if (charges.sst) parts.push(`SST (6%): ${money(charges.sst)}`);
+      if (charges.service)
+        parts.push(
+          `Service Charge (${state.charges.serviceRate}%): ${money(charges.service)}`,
+        );
+      if (charges.rounding)
+        parts.push(
+          `Rounding adjustment: ${charges.rounding >= 0 ? "+" : "−"}${money(Math.abs(charges.rounding))}`,
+        );
+      document.querySelector("#receipt-charges-breakdown").textContent =
+        parts.length
+          ? `Items ${money(charges.subtotal)} · ${parts.join(" · ")}`
+          : "No extra charges selected.";
+    }
+    function renderItems() {
+      const body = document.querySelector("#items-body");
+      body.innerHTML =
+        state.items
+          .map(
+            (item) =>
+              `<tr class="border-t border-stone-100"><td class="px-4 py-2"><input data-item-name="${item.id}" value="${esc(item.name)}" class="w-full rounded-lg px-2 py-2 font-medium outline-none ring-orange-300 bg-orange-50/50 focus:bg-orange-50 focus:ring-2"></td><td class="px-4 py-2"><input data-item-price="${item.id}" type="number" step="0.01" min="0" value="${Number(item.price || 0).toFixed(2)}" class="w-full rounded-lg px-2 py-2 text-right font-semibold outline-none ring-orange-300 bg-orange-50/50 focus:bg-orange-50 focus:ring-2"></td><td class="px-2 py-2 text-right whitespace-nowrap"><button data-split-item="${item.id}" aria-label="Split ${esc(item.name)}" title="Split item" class="rounded-lg p-2 text-orange-700 hover:bg-orange-50"><svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2"><path d="M3 12h7"/><path d="M10 12 18 4"/><path d="M10 12l8 8"/><path d="M15 4h3v3"/><path d="M15 20h3v-3"/></svg></button><button data-delete-item="${item.id}" aria-label="Remove ${esc(item.name)}" title="Remove item" class="rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500"><svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2"><path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M6 6l1 15h10l1-15"/><path d="M10 11v6M14 11v6"/></svg></button></td></tr>`,
+          )
+          .join("") ||
+        `<tr><td colspan="3" class="px-4 py-8 text-center text-stone-500">No items found yet. Add one above.</td></tr>`;
+      document.querySelector("#items-total").textContent = money(itemTotal());
+      document
+        .querySelector("#items-review")
+        .classList.toggle("hidden", !state.items.length);
+      document
+        .querySelector("#ocr-details")
+        .classList.toggle("hidden", !state.ocrText);
+      document.querySelector("#ocr-text").textContent = state.ocrText;
+      renderCharges();
+    }
+    function esc(value) {
+      const div = document.createElement("div");
+      div.textContent = value;
+      return div.innerHTML;
+    }
+    function addItem(name = "", price = 0) {
+      state.items.push({ id: id(), name, price: Number(price) || 0 });
+      renderItems();
+    }
+    function closeSplitModal() {
+      splitTargetId = null;
+      document.querySelector("#split-item-modal").classList.add("hidden");
+      document.querySelector("#split-item-modal").classList.remove("flex");
+    }
+    function cleanSplitName(name, count) {
+      return (
+        name
+          .replace(new RegExp(`^\\s*${count}\\s*(?:x|×)?\\s*`, "i"), "")
+          .trim() || name
+      );
+    }
+    function updateSplitPreview() {
+      const item = state.items.find(
+        (candidate) => candidate.id === splitTargetId,
+      );
+      const count = Number(
+        document.querySelector("#split-count-input").value,
+      );
+      if (!item || !Number.isInteger(count) || count < 2) {
+        document.querySelector("#split-item-preview").textContent =
+          "Choose at least 2 items.";
+        return;
+      }
+      const totalCents = Math.round(item.price * 100);
+      const baseCents = Math.floor(totalCents / count);
+      const remainderCents = totalCents % count;
+      const priceText = remainderCents
+        ? `${count - remainderCents} × ${money(baseCents / 100)} and ${remainderCents} × ${money((baseCents + 1) / 100)}`
+        : `${count} × ${money(baseCents / 100)}`;
+      document.querySelector("#split-item-preview").textContent =
+        `You’ll get ${priceText}. The total stays ${money(item.price)}.`;
+    }
+    function openSplitModal(itemId) {
+      const item = state.items.find((candidate) => candidate.id === itemId);
+      if (!item) return;
+      splitTargetId = itemId;
+      document.querySelector("#split-item-name").textContent =
+        `${item.name} · ${money(item.price)}`;
+      document.querySelector("#split-count-input").value = 2;
+      document.querySelector("#split-item-modal").classList.remove("hidden");
+      document.querySelector("#split-item-modal").classList.add("flex");
+      updateSplitPreview();
+      document.querySelector("#split-count-input").focus();
+    }
+    function splitItem(event) {
+      event.preventDefault();
+      const item = state.items.find(
+        (candidate) => candidate.id === splitTargetId,
+      );
+      const count = Number(
+        document.querySelector("#split-count-input").value,
+      );
+      if (!item || !Number.isInteger(count) || count < 2 || count > 50)
+        return;
+      const totalCents = Math.round(item.price * 100);
+      const baseCents = Math.floor(totalCents / count);
+      const remainderCents = totalCents % count;
+      const name = cleanSplitName(item.name, count);
+      const existingAssignments = assignmentsFor(item.id);
+      const replacement = Array.from({ length: count }, (_, index) => ({
+        id: id(),
+        name,
+        price: (baseCents + (index < remainderCents ? 1 : 0)) / 100,
+      }));
+      state.items = state.items.flatMap((candidate) =>
+        candidate.id === item.id ? replacement : [candidate],
+      );
+      delete state.assignments[item.id];
+      replacement.forEach((candidate) => {
+        if (existingAssignments.length)
+          state.assignments[candidate.id] = [...existingAssignments];
+      });
+      closeSplitModal();
+      renderItems();
+      if (state.step === 3) renderAllocation();
+    }
+    function renderPeople() {
+      const list = document.querySelector("#people-list");
+      list.innerHTML = state.people
+        .map(
+          (person) =>
+            `<div class="flex items-center justify-between px-5 py-4"><span class="font-bold">${esc(person.name)}</span><button data-delete-person="${person.id}" class="rounded-lg px-2 py-1 text-sm font-bold text-stone-400 hover:bg-red-50 hover:text-red-500">Remove</button></div>`,
+        )
+        .join("");
+      document.querySelector("#people-count").textContent =
+        `(${state.people.length})`;
+      document
+        .querySelector("#no-people")
+        .classList.toggle("hidden", !!state.people.length);
+      document.querySelector("#to-split-btn").disabled = !state.people.length;
+    }
+    function assignmentsFor(itemId) {
+      return state.assignments[itemId] || [];
+    }
+    function toggleAssignment(itemId, personId) {
+      const people = assignmentsFor(itemId);
+      state.assignments[itemId] = people.includes(personId)
+        ? people.filter((x) => x !== personId)
+        : [...people, personId];
+      renderAllocation();
+    }
+    function billFor(personId) {
+      return state.items.reduce((sum, item) => {
+        const holders = assignmentsFor(item.id);
+        return (
+          sum + (holders.includes(personId) ? item.price / holders.length : 0)
+        );
+      }, 0);
+    }
+    function billBreakdown(personId) {
+      const bill = chargesFor(billFor(personId));
+      const rounding = roundingFor(personId);
+      return {
+        ...bill,
+        rounding,
+        total: roundMoney(bill.beforeRounding + rounding),
+      };
+    }
+    function settlementSummaryText() {
+      const receipt = receiptBreakdown();
+      const lines = [
+        "Silly Billy — bill split",
+        `Receipt total: ${money(receipt.total)}`,
+        "",
+      ];
+      state.people.forEach((person) =>
+        lines.push(
+          `${person.name}: ${money(billBreakdown(person.id).total)}`,
+        ),
+      );
+      return lines.join("\n");
+    }
+    function renderFinalSummary() {
+      const receipt = receiptBreakdown();
+      const allocated = state.items
+        .filter((item) => assignmentsFor(item.id).length)
+        .reduce((sum, item) => sum + item.price, 0);
+      document.querySelector("#settlement-total").textContent = money(
+        receipt.total,
+      );
+      document.querySelector("#settlement-status").textContent =
+        allocated === itemTotal()
+          ? `All items assigned across ${state.people.length} people`
+          : `${money(allocated)} of ${money(itemTotal())} in items assigned`;
+      document.querySelector("#final-list").innerHTML = state.people
+        .map((person) => {
+          const bill = billBreakdown(person.id);
+          return `<div class="rounded-2xl bg-white px-4 py-4 shadow-sm"><p class="font-bold">${esc(person.name)}</p><p class="mt-1 text-2xl font-black text-emerald-700">${money(bill.total)}</p><p class="mt-2 text-xs font-semibold text-stone-500">Items ${money(bill.subtotal)}${bill.sst ? ` · SST ${money(bill.sst)}` : ""}${bill.service ? ` · Service ${money(bill.service)}` : ""}${bill.rounding ? ` · Round ${bill.rounding >= 0 ? "+" : "−"}${money(Math.abs(bill.rounding))}` : ""}</p></div>`;
+        })
+        .join("");
+    }
+    async function copySettlementSummary() {
+      const summary = settlementSummaryText();
+      try {
+        await navigator.clipboard.writeText(summary);
+        showAssignmentToast("Settlement summary copied.");
+      } catch (_) {
+        const textarea = document.createElement("textarea");
+        textarea.value = summary;
+        textarea.style.position = "fixed";
+        textarea.style.opacity = "0";
+        document.body.append(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+        showAssignmentToast("Settlement summary copied.");
+      }
+    }
+    function itemCard(item, options = {}) {
+      const holders = assignmentsFor(item.id);
+      const drag =
+        options.draggable && isAllocationDragEnabled()
+          ? `draggable="true" data-drag-item="${item.id}"`
+          : "";
+      const shared =
+        holders.length > 1
+          ? `<span class="rounded-full bg-orange-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">split ${holders.length} ways</span>`
+          : "";
+      const splitPrice =
+        holders.length > 1
+          ? ` <span class="text-md">${money(item.price / holders.length)}</span>`
+          : "";
+      const remove = options.personId
+        ? `<button data-unassign="${item.id}" data-person="${options.personId}" class="ml-2 rounded-md px-2 py-1 text-sm text-stone-400 hover:bg-red-50 hover:text-red-500" title="Remove from this person">×</button>`
+        : "";
+      const displayedPrice =
+        holders.length > 1
+          ? `<span class="text-xs text-orange-400 line-through">${money(item.price)}</span>${splitPrice}`
+          : money(item.price);
+      return `<article ${drag} class="item-card flex items-center justify-between gap-2 rounded-xl border border-stone-200 bg-white px-3 py-3 shadow-sm ${drag ? "cursor-grab active:cursor-grabbing" : ""}"><div class="min-w-0"><p class="truncate font-bold">${esc(item.name)}</p><div class="mt-1 flex items-center gap-2">${shared}</div></div><div class="flex shrink-0 items-center"><span class="font-black text-orange-600">${displayedPrice}</span>${remove}</div></article>`;
+    }
+    function isAllocationDragEnabled() {
+      return window.matchMedia("(min-width: 1024px)").matches;
+    }
+    function personNamesFor(itemId) {
+      return assignmentsFor(itemId)
+        .map(
+          (personId) =>
+            state.people.find((person) => person.id === personId)?.name,
+        )
+        .filter(Boolean);
+    }
+    function itemPickerRow(item, person) {
+      const recipients = personNamesFor(item.id);
+      const alreadyAdded = assignmentsFor(item.id).includes(person.id);
+      const assignment = recipients.length
+        ? `Assigned to ${recipients.join(", ")}`
+        : "Unassigned";
+      const action = alreadyAdded
+        ? "Already on their bill"
+        : recipients.length
+          ? "Share this item"
+          : "Add to bill";
+      return `<button type="button" ${alreadyAdded ? "disabled" : `data-picker-item="${item.id}"`} class="flex w-full items-center justify-between gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left shadow-sm transition ${alreadyAdded ? "cursor-not-allowed opacity-55" : "hover:border-orange-300 hover:bg-orange-50 active:scale-[.99]"}"><span class="min-w-0"><span class="block truncate font-bold">${esc(item.name)}</span><span class="mt-1 block text-xs font-semibold text-stone-500">${esc(assignment)}</span></span><span class="shrink-0 text-right"><span class="block font-black text-orange-600">${money(item.price)}</span><span class="mt-1 block text-xs font-bold ${recipients.length ? "text-orange-700" : "text-stone-500"}">${action}</span></span></button>`;
+    }
+    function pickerSection(title, items, person, emptyText = "") {
+      if (!items.length)
+        return emptyText
+          ? `<p class="rounded-xl bg-stone-50 px-4 py-3 text-sm text-stone-500">${emptyText}</p>`
+          : "";
+      return `<section><h3 class="mb-2 px-1 text-xs font-bold uppercase tracking-[.14em] text-stone-500">${title}</h3><div class="space-y-2">${items.map((item) => itemPickerRow(item, person)).join("")}</div></section>`;
+    }
+    function openItemPicker(personId) {
+      const person = state.people.find(
+        (candidate) => candidate.id === personId,
+      );
+      if (!person) return;
+      pickerPersonId = personId;
+      document.querySelector("#item-picker-title").textContent =
+        `Add an item for ${person.name}`;
+      const unassigned = state.items.filter(
+        (item) => !assignmentsFor(item.id).length,
+      );
+      const assigned = state.items.filter(
+        (item) => assignmentsFor(item.id).length,
+      );
+      document.querySelector("#item-picker-list").innerHTML =
+        `${pickerSection("Unassigned items", unassigned, person, "Every item is assigned already.")}${pickerSection("Already assigned — tap to share", assigned, person)}`;
+      const modal = document.querySelector("#item-picker-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.querySelector("#close-item-picker-btn").focus();
+    }
+    function closeItemPicker() {
+      pickerPersonId = null;
+      const modal = document.querySelector("#item-picker-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+    function showAssignmentToast(message) {
+      const toast = document.querySelector("#assignment-toast");
+      toast.textContent = message;
+      toast.classList.remove("hidden");
+      clearTimeout(assignmentToastTimer);
+      assignmentToastTimer = setTimeout(
+        () => toast.classList.add("hidden"),
+        2000,
+      );
+    }
+    function addItemFromPicker(itemId) {
+      const person = state.people.find(
+        (candidate) => candidate.id === pickerPersonId,
+      );
+      const item = state.items.find((candidate) => candidate.id === itemId);
+      if (!person || !item) return;
+      const recipients = personNamesFor(itemId);
+      if (assignmentsFor(itemId).includes(person.id)) return;
+      state.assignments[itemId] = [...assignmentsFor(itemId), person.id];
+      closeItemPicker();
+      renderAllocation();
+      const shareMessage = recipients.length
+        ? `${item.name} is now shared by ${recipients.join(", ")} and ${person.name} — ${money(item.price / (recipients.length + 1))} each.`
+        : `${item.name} was added to ${person.name}'s bill.`;
+      showAssignmentToast(shareMessage);
+    }
+    function renderAllocation() {
+      document.querySelector("#allocation-list").innerHTML = state.people
+        .map((person) => {
+          const theirs = state.items.filter((item) =>
+            assignmentsFor(item.id).includes(person.id),
+          );
+          const bill = billBreakdown(person.id);
+          const formula = `${money(bill.subtotal)}${bill.sst ? ` + ${money(bill.sst)} SST` : ""}${bill.service ? ` + ${money(bill.service)} service` : ""}${bill.rounding ? ` ${bill.rounding >= 0 ? "+" : "−"} ${money(Math.abs(bill.rounding))} round` : ""}`;
+          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-3 transition duration-150" data-drop-person="${person.id}"><div class="mb-3 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><p class="mt-0.5 hidden text-xs font-medium text-stone-500 lg:block">Drop an item here to add or share it.</p></div><button type="button" data-open-item-picker="${person.id}" aria-label="Add item to ${esc(person.name)}" title="Add item" class="rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600 md:grid md:h-9 md:w-9 md:place-items-center md:rounded-full md:p-0"><span class="md:hidden">+ Add item</span><span class="hidden text-xl leading-none md:block" aria-hidden="true">+</span></button></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id, draggable: true })).join("") || `<p class="p-3 text-center text-sm text-stone-400"><span class="lg:hidden">No items added yet.</span><span class="hidden lg:inline">Drop items here.</span></p>`}</div></div></article>`;
+          const choices = state.items
+            .map(
+              (item) =>
+                `<option value="${item.id}">${esc(item.name)} — ${money(item.price)}${assignmentsFor(item.id).includes(person.id) ? " (already added)" : ""}</option>`,
+            )
+            .join("");
+          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-3"><div class="mb-3 flex items-center justify-between gap-3"><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><details class="relative"><summary class="cursor-pointer list-none rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600">+ Add item</summary><div class="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-stone-200 bg-white p-2 shadow-xl"><label class="sr-only" for="add-item-${person.id}">Add an item to ${esc(person.name)}</label><select id="add-item-${person.id}" data-add-item="${person.id}" class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm font-semibold"><option value="">Choose a receipt item…</option>${choices}</select></div></details></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id })).join("") || `<p class="p-3 text-center text-sm text-stone-400">No items added yet.</p>`}</div></div></article>`;
+        })
+        .join("");
+      const unassignedItems = state.items.filter(
+        (item) => !assignmentsFor(item.id).length,
+      );
+      document.querySelector("#receipt-item-list").innerHTML =
+        unassignedItems
+          .map((item) => {
+            const holders = assignmentsFor(item.id)
+              .map(
+                (personId) =>
+                  state.people.find((person) => person.id === personId)?.name,
+              )
+              .filter(Boolean);
+            const status = holders.length
+              ? `Assigned to ${holders.join(", ")}`
+              : "Not assigned yet";
+            const drag = isAllocationDragEnabled()
+              ? `draggable="true" data-drag-item="${item.id}"`
+              : "";
+            return `<div ${drag} class="flex items-center justify-between gap-3 rounded-xl bg-stone-50 px-4 py-3 ${drag ? "cursor-grab active:cursor-grabbing" : ""}"><div class="min-w-0"><p class="truncate font-bold">${esc(item.name)}</p><p class="mt-1 text-xs font-medium text-stone-500">${esc(status)}</p></div><span class="shrink-0 font-black text-orange-600">${money(item.price)}</span></div>`;
+          })
+          .join("") ||
+        `<p class="p-5 text-center text-sm text-stone-500">${state.items.length ? (isAllocationDragEnabled() ? "Everything has a home. Drop an item here to unassign it." : "Everything has a home.") : "No receipt items yet."}</p>`;
+      const allocated = state.items
+        .filter((item) => assignmentsFor(item.id).length)
+        .reduce((sum, item) => sum + item.price, 0);
+      document.querySelector("#assigned-total").textContent =
+        `${money(allocated)} / ${money(itemTotal())}`;
+      const receiptCharges = receiptBreakdown();
+      const receiptFees = [
+        receiptCharges.sst && `SST ${money(receiptCharges.sst)}`,
+        receiptCharges.service && `Service ${money(receiptCharges.service)}`,
+        state.charges.rounding &&
+        `Round ${receiptCharges.rounding >= 0 ? "+" : "−"}${money(Math.abs(receiptCharges.rounding))}`,
+      ]
+        .filter(Boolean)
+        .join(" · ");
+      document.querySelector("#assigned-charges").textContent = receiptFees
+        ? `Whole receipt: ${money(receiptCharges.total)} incl. ${receiptFees}`
+        : "";
+      wireAllocationDragAndDrop();
+    }
+    function wireAllocationDragAndDrop() {
+      const receiptZone = document.querySelector("[data-drop-unassigned]");
+      if (!isAllocationDragEnabled()) {
+        receiptZone.ondragover =
+          receiptZone.ondragleave =
+          receiptZone.ondrop =
+          null;
+        return;
+      }
+      document.querySelectorAll("[data-drag-item]").forEach((card) => {
+        card.ondragstart = (event) => {
+          event.dataTransfer.setData("text/plain", card.dataset.dragItem);
+          event.dataTransfer.effectAllowed = "copy";
+          card.classList.add("opacity-40");
+        };
+        card.ondragend = () => card.classList.remove("opacity-40");
+      });
+      receiptZone.ondragover = (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        receiptZone.classList.add(
+          "bg-orange-50",
+          "ring-2",
+          "ring-inset",
+          "ring-orange-400",
+        );
+      };
+      receiptZone.ondragleave = () =>
+        receiptZone.classList.remove(
+          "bg-orange-50",
+          "ring-2",
+          "ring-inset",
+          "ring-orange-400",
+        );
+      receiptZone.ondrop = (event) => {
+        event.preventDefault();
+        receiptZone.classList.remove(
+          "bg-orange-50",
+          "ring-2",
+          "ring-inset",
+          "ring-orange-400",
+        );
+        const itemId = event.dataTransfer.getData("text/plain");
+        if (itemId) {
+          delete state.assignments[itemId];
+          renderAllocation();
+        }
+      };
+      document.querySelectorAll("[data-drop-person]").forEach((zone) => {
+        zone.ondragover = (event) => {
+          event.preventDefault();
+          event.dataTransfer.dropEffect = "copy";
+          zone.classList.add(
+            "bg-orange-50",
+            "border-orange-500",
+            "scale-[1.01]",
+          );
+        };
+        zone.ondragleave = () =>
+          zone.classList.remove(
+            "bg-orange-50",
+            "border-orange-500",
+            "scale-[1.01]",
+          );
+        zone.ondrop = (event) => {
+          event.preventDefault();
+          zone.classList.remove(
+            "bg-orange-50",
+            "border-orange-500",
+            "scale-[1.01]",
+          );
+          const itemId = event.dataTransfer.getData("text/plain");
+          if (
+            itemId &&
+            !assignmentsFor(itemId).includes(zone.dataset.dropPerson)
+          ) {
+            state.assignments[itemId] = [
+              ...assignmentsFor(itemId),
+              zone.dataset.dropPerson,
+            ];
+            renderAllocation();
+          }
+        };
+      });
+    }
+    function extractItems(text) {
+      const ignored =
+        /(?:subtotal|sub\s*total|net\s*total|service|\bsst\b|\btax\b|rounding|taxable|cash|visa|mastercard|change|receipt|table|pax|date|time|thank|promo|starts|daily|total\s*amount|invoice|order|cashier|printed|address|tel\b)/i;
+      const results = [];
+      let pendingName = "";
+      let pendingQuantity = null;
+      let pendingPricedItem = null;
+      const normalisePrice = (value) =>
+        Number(
+          value.replace(/[Oo]/g, "0").replace(/[Il]/g, "1").replace(",", "."),
+        );
+      const add = (rawName, rawPrice, explicitQuantity = null) => {
+        const quantityMatch = rawName.match(/^\s*(\d+)\s+(.+)$/);
+        const detectedQuantity =
+          quantityMatch && Number(quantityMatch[1]) <= 50
+            ? Number(quantityMatch[1])
+            : null;
+        let quantity = explicitQuantity || detectedQuantity || 1;
+        let name = detectedQuantity ? quantityMatch[2] : rawName;
+        const unitPriceAtEnd = name.match(
+          /(?:@\s*|\s)([0-9OIl]+[.,][0-9OIl]{2})\s*$/i,
+        );
+        if (unitPriceAtEnd) name = name.slice(0, unitPriceAtEnd.index).trim();
+        name = name.trim();
+        const totalCents = Math.round(normalisePrice(rawPrice) * 100);
+        if (
+          explicitQuantity === null &&
+          !detectedQuantity &&
+          unitPriceAtEnd
+        ) {
+          const unitCents = Math.round(
+            normalisePrice(unitPriceAtEnd[1]) * 100,
+          );
+          const inferredQuantity = totalCents / unitCents;
+          if (
+            Number.isInteger(inferredQuantity) &&
+            inferredQuantity > 1 &&
+            inferredQuantity <= 99
+          )
+            quantity = inferredQuantity;
+        }
+        if (
+          name.length > 2 &&
+          /[a-z]/i.test(name) &&
+          !ignored.test(name) &&
+          quantity > 0 &&
+          totalCents > 0 &&
+          totalCents < 1000000
+        ) {
+          const baseCents = Math.floor(totalCents / quantity);
+          const remainderCents = totalCents % quantity;
+          for (let index = 0; index < quantity; index++)
+            results.push({
+              id: id(),
+              name,
+              price: (baseCents + (index < remainderCents ? 1 : 0)) / 100,
+            });
+        }
+      };
+      const commitPendingPricedItem = () => {
+        if (pendingPricedItem) {
+          const fallbackTotal =
+            pendingPricedItem.unitPrice * (pendingPricedItem.quantity || 1);
+          add(
+            pendingPricedItem.name,
+            String(fallbackTotal.toFixed(2)),
+            pendingPricedItem.quantity || 1,
+          );
+          pendingPricedItem = null;
+        }
+      };
+      let reachedTotals = false;
+      const lines = text
+        .split(/\n+/)
+        .map((line) =>
+          line
+            .replace(/[—–_=|]+/g, " ")
+            .trim()
+            .replace(/\s+/g, " "),
+        )
+        .filter(Boolean);
+      lines.forEach((line) => {
+        if (/(?:sub\s*total|net\s*total)/i.test(line)) {
+          reachedTotals = true;
+          pendingName = "";
+          pendingQuantity = null;
+          pendingPricedItem = null;
+          return;
+        }
+        if (reachedTotals) return;
+        if (/^\d{1,2}$/.test(line)) {
+          commitPendingPricedItem();
+          pendingQuantity = Number(line);
+          return;
+        }
+        const amounts = [...line.matchAll(/[0-9OIl]{1,5}[.,][0-9OIl]{2}/gi)];
+        const priceAtEnd = amounts.at(-1);
+        if (priceAtEnd && !line.slice(0, priceAtEnd.index).trim()) {
+          if (pendingPricedItem) {
+            const total = normalisePrice(priceAtEnd[0]);
+            const inferredQuantity =
+              pendingPricedItem.quantity ||
+              (Number.isInteger(total / pendingPricedItem.unitPrice)
+                ? total / pendingPricedItem.unitPrice
+                : 1);
+            add(pendingPricedItem.name, priceAtEnd[0], inferredQuantity);
+            pendingPricedItem = null;
+          } else if (pendingName)
+            add(pendingName, priceAtEnd[0], pendingQuantity || 1);
+          pendingName = "";
+          pendingQuantity = null;
+          return;
+        }
+        if (priceAtEnd) {
+          const name = line.slice(0, priceAtEnd.index).trim();
+          const trailingAt = /@\s*$/.test(name);
+          if (name && /[a-z]/i.test(name) && !ignored.test(name)) {
+            if ((pendingQuantity && pendingQuantity > 1) || trailingAt) {
+              pendingPricedItem = {
+                name: name.replace(/@\s*$/, "").trim(),
+                unitPrice: normalisePrice(priceAtEnd[0]),
+                quantity: pendingQuantity,
+              };
+              pendingName = "";
+              pendingQuantity = null;
+            } else add(name, priceAtEnd[0]);
+          } else if (pendingName)
+            add(pendingName, priceAtEnd[0], pendingQuantity || 1);
+          pendingName = "";
+          return;
+        }
+        if (/[a-z]/i.test(line) && !ignored.test(line)) {
+          commitPendingPricedItem();
+          pendingName = line;
+        }
+      });
+      commitPendingPricedItem();
+      return results;
+    }
+    function reconcileToPrintedSubtotal(items, text) {
+      const subtotalLine = text
+        .split(/\n+/)
+        .find((line) => /sub\s*total/i.test(line));
+      const subtotalAmount =
+        subtotalLine &&
+        [...subtotalLine.matchAll(/[0-9OIl]{1,5}[.,][0-9OIl]{2}/gi)].at(
+          -1,
+        )?.[0];
+      if (!subtotalAmount) return { items, corrected: false };
+      const expectedCents = Math.round(
+        normaliseReceiptAmount(subtotalAmount) * 100,
+      );
+      const actualCents = Math.round(
+        items.reduce((sum, item) => sum + item.price, 0) * 100,
+      );
+      const differenceCents = expectedCents - actualCents;
+      const likelyMissingDigit = items.filter(
+        (item) => item.price <= 5 && /\bcombo\b/i.test(item.name),
+      );
+      if (
+        differenceCents > 0 &&
+        differenceCents <= 5000 &&
+        likelyMissingDigit.length === 1
+      ) {
+        likelyMissingDigit[0].price =
+          Math.round(likelyMissingDigit[0].price * 100 + differenceCents) /
+          100;
+        return { items, corrected: true };
+      }
+      return { items, corrected: false };
+    }
+    function normaliseReceiptAmount(value) {
+      return Number(
+        value.replace(/[Oo]/g, "0").replace(/[Il]/g, "1").replace(",", "."),
+      );
+    }
+    function detectReceiptCharges(text) {
+      const lines = text
+        .split(/\n+/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const amountOnLine = (line) => {
+        const amount = [
+          ...line.matchAll(/[-+]?[0-9OIl]{1,5}[.,][0-9OIl]{2}/gi),
+        ].at(-1)?.[0];
+        return amount ? normaliseReceiptAmount(amount) : null;
+      };
+      const subtotalLine = lines.find((line) => /sub\s*total/i.test(line));
+      const subtotal = subtotalLine && amountOnLine(subtotalLine);
+      const serviceLine = lines.find((line) =>
+        /service\s*(?:charge)?/i.test(line),
+      );
+      const sstLine = lines.find((line) => /\bsst\b|sales\s*tax/i.test(line));
+      const roundingLine = lines.find((line) =>
+        /rounding|round\s*adj/i.test(line),
+      );
+      const detected = [];
+      if (sstLine && amountOnLine(sstLine) !== null) {
+        state.charges.sst = true;
+        detected.push("SST");
+      }
+      if (serviceLine && amountOnLine(serviceLine) !== null) {
+        state.charges.service = true;
+        const explicitRate = serviceLine.match(/([0-9]+(?:[.,][0-9]+)?)\s*%/);
+        const inferredRate = subtotal
+          ? roundMoney((amountOnLine(serviceLine) / subtotal) * 100)
+          : null;
+        state.charges.serviceRate = Math.min(
+          100,
+          Math.max(
+            0,
+            Number(
+              (explicitRate?.[1] || inferredRate || state.charges.serviceRate)
+                .toString()
+                .replace(",", "."),
+            ),
+          ),
+        );
+        detected.push(`service ${state.charges.serviceRate}%`);
+      }
+      if (roundingLine && amountOnLine(roundingLine) !== null) {
+        state.charges.roundingEnabled = true;
+        state.charges.rounding = amountOnLine(roundingLine);
+        detected.push(`rounding ${money(state.charges.rounding)}`);
+      }
+      return detected;
+    }
+    function prepareReceiptImage(file) {
+      return new Promise((resolve, reject) => {
+        const image = new Image();
+        const imageUrl = URL.createObjectURL(file);
+        image.onload = () => {
+          const scale = Math.min(3, Math.max(1, 1800 / image.naturalWidth));
+          const canvas = document.createElement("canvas");
+          canvas.width = Math.round(image.naturalWidth * scale);
+          canvas.height = Math.round(image.naturalHeight * scale);
+          const context = canvas.getContext("2d", {
+            willReadFrequently: true,
+          });
+          context.imageSmoothingEnabled = false;
+          context.drawImage(image, 0, 0, canvas.width, canvas.height);
+          const pixels = context.getImageData(
+            0,
+            0,
+            canvas.width,
+            canvas.height,
+          );
+          for (let index = 0; index < pixels.data.length; index += 4) {
+            const grey =
+              pixels.data[index] * 0.299 +
+              pixels.data[index + 1] * 0.587 +
+              pixels.data[index + 2] * 0.114;
+            const contrast = Math.max(
+              0,
+              Math.min(255, (grey - 128) * 1.25 + 128),
+            );
+            pixels.data[index] = contrast;
+            pixels.data[index + 1] = contrast;
+            pixels.data[index + 2] = contrast;
+          }
+          context.putImageData(pixels, 0, 0);
+          URL.revokeObjectURL(imageUrl);
+          canvas.toBlob(
+            (blob) =>
+              blob
+                ? resolve(blob)
+                : reject(new Error("Could not prepare the receipt image.")),
+            "image/png",
+          );
+        };
+        image.onerror = () => {
+          URL.revokeObjectURL(imageUrl);
+          reject(new Error("Could not load the receipt image."));
+        };
+        image.src = imageUrl;
+      });
+    }
+    async function getOcrWorker(status) {
+      if (ocrWorker) return ocrWorker;
+      ocrWorker = await Tesseract.createWorker("eng", 1, {
+        logger: (message) => {
+          if (message.status === "recognizing text")
+            status.textContent = `Reading receipt… ${Math.round((message.progress || 0) * 100)}%`;
+        },
+      });
+      await ocrWorker.setParameters({
+        tessedit_pageseg_mode: "6",
+        preserve_interword_spaces: "1",
+      });
+      return ocrWorker;
+    }
+    async function handleFile(file) {
+      if (!file) return;
+      const preview = document.querySelector("#receipt-preview");
+      preview.src = URL.createObjectURL(file);
+      preview.classList.remove("hidden");
+      document.querySelector("#preview-empty").classList.add("hidden");
+      const status = document.querySelector("#ocr-status");
+      status.classList.remove("hidden");
+      status.textContent = "Preparing receipt image…";
+      try {
+        const preparedImage = await prepareReceiptImage(file);
+        status.textContent = "Starting receipt reader…";
+        const worker = await getOcrWorker(status);
+        const result = await worker.recognize(preparedImage);
+        state.ocrText = result.data.text;
+        const detectedCharges = detectReceiptCharges(state.ocrText);
+        const reconciliation = reconcileToPrintedSubtotal(
+          extractItems(state.ocrText),
+          state.ocrText,
+        );
+        const found = reconciliation.items;
+        if (!found.length) {
+          status.textContent =
+            "We could not confidently find line items. Add them manually below.";
+          addItem();
+        } else {
+          state.items = found;
+          state.assignments = {};
+          status.textContent = `${found.length} possible item${found.length === 1 ? "" : "s"} found${reconciliation.corrected ? "; one likely OCR digit was corrected to match the printed subtotal" : ""}${detectedCharges.length ? `; detected ${detectedCharges.join(", ")}` : ""} — please review them below.`;
+          renderItems();
+        }
+      } catch (error) {
+        console.error(error);
+        status.textContent =
+          "OCR could not read this image. You can add the items manually below.";
+        addItem();
+      }
+    }
+    function setCameraMessage(message) {
+      const status = document.querySelector("#ocr-status");
+      status.classList.remove("hidden");
+      status.textContent = message;
+    }
+    function closeReceiptZoom() {
+      document.querySelector("#receipt-zoom-modal").classList.add("hidden");
+    }
+    function openReceiptZoom() {
+      const preview = document.querySelector("#receipt-preview");
+      if (!preview.src) return;
+      document.querySelector("#zoomed-receipt").src = preview.src;
+      document
+        .querySelector("#receipt-zoom-modal")
+        .classList.remove("hidden");
+      document.querySelector("#close-receipt-zoom-btn").focus();
+    }
+    function closeCamera() {
+      if (cameraStream)
+        cameraStream.getTracks().forEach((track) => track.stop());
+      cameraStream = null;
+      document.querySelector("#camera-video").srcObject = null;
+      document.querySelector("#camera-modal").classList.add("hidden");
+      document.querySelector("#camera-modal").classList.remove("flex");
+    }
+    async function openCamera() {
+      if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+        setCameraMessage(
+          "Live camera needs a secure page. Open this through localhost or HTTPS, then try again.",
+        );
+        return;
+      }
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+        const video = document.querySelector("#camera-video");
+        video.srcObject = cameraStream;
+        document.querySelector("#camera-modal").classList.remove("hidden");
+        document.querySelector("#camera-modal").classList.add("flex");
+        await video.play();
+      } catch (error) {
+        console.error(error);
+        const denied =
+          error.name === "NotAllowedError" || error.name === "SecurityError";
+        setCameraMessage(
+          denied
+            ? "Camera permission was blocked. Allow camera access in your browser settings, then try again."
+            : "We could not open a camera on this device. Upload a photo instead.",
+        );
+      }
+    }
+    function captureCameraPhoto() {
+      const video = document.querySelector("#camera-video");
+      if (!video.videoWidth) {
+        setCameraMessage(
+          "The camera is still warming up. Please try capture again in a moment.",
+        );
+        return;
+      }
+      const canvas = document.querySelector("#camera-canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas
+        .getContext("2d")
+        .drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(
+        (blob) => {
+          if (blob)
+            handleFile(
+              new File([blob], "receipt-camera.jpg", { type: "image/jpeg" }),
+            );
+        },
+        "image/jpeg",
+        0.92,
+      );
+      closeCamera();
+    }
+    document
+      .querySelector("#receipt-input")
+      .addEventListener("change", (e) => handleFile(e.target.files[0]));
+    const uploadZone = document.querySelector("#upload-zone");
+    ["dragenter", "dragover"].forEach((eventName) =>
+      uploadZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        uploadZone.classList.add(
+          "bg-orange-50",
+          "border-orange-500",
+          "scale-[1.01]",
+        );
+      }),
+    );
+    ["dragleave", "drop"].forEach((eventName) =>
+      uploadZone.addEventListener(eventName, (event) => {
+        event.preventDefault();
+        uploadZone.classList.remove(
+          "bg-orange-50",
+          "border-orange-500",
+          "scale-[1.01]",
+        );
+      }),
+    );
+    uploadZone.addEventListener("drop", (event) => {
+      const file = [...event.dataTransfer.files].find((candidate) =>
+        candidate.type.startsWith("image/"),
+      );
+      if (file) handleFile(file);
+      else if (event.dataTransfer.files.length)
+        setCameraMessage("Please drop an image file of the receipt.");
+    });
+    document
+      .querySelector("#camera-btn")
+      .addEventListener("click", openCamera);
+    document
+      .querySelector("#receipt-preview")
+      .addEventListener("click", openReceiptZoom);
+    document
+      .querySelector("#receipt-preview")
+      .addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          openReceiptZoom();
+        }
+      });
+    document
+      .querySelector("#close-receipt-zoom-btn")
+      .addEventListener("click", closeReceiptZoom);
+    document
+      .querySelector("#receipt-zoom-modal")
+      .addEventListener("click", (event) => {
+        if (event.target.id === "receipt-zoom-modal") closeReceiptZoom();
+      });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeReceiptZoom();
+        closeSplitModal();
+        closeItemPicker();
+      }
+    });
+    document
+      .querySelector("#close-camera-btn")
+      .addEventListener("click", closeCamera);
+    document
+      .querySelector("#cancel-camera-btn")
+      .addEventListener("click", closeCamera);
+    document
+      .querySelector("#capture-camera-btn")
+      .addEventListener("click", captureCameraPhoto);
+    document.querySelector("#sample-btn").addEventListener("click", () => {
+      state.items = sampleItems.map(([name, price]) => ({
+        id: id(),
+        name,
+        price,
+      }));
+      state.assignments = {};
+      state.ocrText = "";
+      renderItems();
+      document.querySelector("#ocr-status").classList.remove("hidden");
+      document.querySelector("#ocr-status").textContent =
+        "Simple sample item added (RM12.00 subtotal).";
+    });
+    document
+      .querySelector("#add-item-btn")
+      .addEventListener("click", () => addItem("New item", 0));
+    document
+      .querySelector("#sst-checkbox")
+      .addEventListener("change", (event) => {
+        state.charges.sst = event.target.checked;
+        renderItems();
+        if (state.step === 3) renderAllocation();
+      });
+    document
+      .querySelector("#service-checkbox")
+      .addEventListener("change", (event) => {
+        state.charges.service = event.target.checked;
+        renderItems();
+        if (state.step === 3) renderAllocation();
+      });
+    document
+      .querySelector("#service-rate-input")
+      .addEventListener("input", (event) => {
+        state.charges.serviceRate = Math.min(
+          100,
+          Math.max(0, Number(event.target.value) || 0),
+        );
+        renderCharges(false);
+        if (state.step === 3) renderAllocation();
+      });
+    document
+      .querySelector("#rounding-checkbox")
+      .addEventListener("change", (event) => {
+        state.charges.roundingEnabled = event.target.checked;
+        renderItems();
+        if (state.step === 3) renderAllocation();
+      });
+    document
+      .querySelector("#rounding-input")
+      .addEventListener("input", (event) => {
+        state.charges.rounding = roundMoney(Number(event.target.value) || 0);
+        renderCharges(false);
+        if (state.step === 3) renderAllocation();
+      });
+    document.querySelector("#items-body").addEventListener("input", (e) => {
+      const item = state.items.find(
+        (i) =>
+          i.id === (e.target.dataset.itemName || e.target.dataset.itemPrice),
+      );
+      if (!item) return;
+      if (e.target.dataset.itemName) item.name = e.target.value;
+      if (e.target.dataset.itemPrice)
+        item.price = Math.max(0, Number(e.target.value) || 0);
+      document.querySelector("#items-total").textContent = money(itemTotal());
+      renderCharges();
+    });
+    document
+      .querySelector("#items-body")
+      .addEventListener("focusout", (e) => {
+        if (e.target.dataset.itemPrice)
+          e.target.value = Number(e.target.value || 0).toFixed(2);
+      });
+    document.querySelector("#items-body").addEventListener("click", (e) => {
+      const splitButton = e.target.closest("[data-split-item]");
+      if (splitButton) {
+        openSplitModal(splitButton.dataset.splitItem);
+        return;
+      }
+      const button = e.target.closest("[data-delete-item]");
+      if (button) {
+        state.items = state.items.filter(
+          (i) => i.id !== button.dataset.deleteItem,
+        );
+        delete state.assignments[button.dataset.deleteItem];
+        renderItems();
+      }
+    });
+    document
+      .querySelector("#split-item-form")
+      .addEventListener("submit", splitItem);
+    document
+      .querySelector("#split-count-input")
+      .addEventListener("input", updateSplitPreview);
+    document
+      .querySelector("#close-split-modal-btn")
+      .addEventListener("click", closeSplitModal);
+    document
+      .querySelector("#cancel-split-btn")
+      .addEventListener("click", closeSplitModal);
+    document.querySelector("#person-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const input = document.querySelector("#person-input");
+      const name = input.value.trim();
+      if (!name) return;
+      state.people.push({ id: id(), name });
+      input.value = "";
+      renderPeople();
+      input.focus();
+    });
+    document.querySelector("#people-list").addEventListener("click", (e) => {
+      const button = e.target.closest("[data-delete-person]");
+      if (!button) return;
+      state.people = state.people.filter(
+        (p) => p.id !== button.dataset.deletePerson,
+      );
+      Object.keys(state.assignments).forEach(
+        (itemId) =>
+        (state.assignments[itemId] = assignmentsFor(itemId).filter(
+          (personId) => personId !== button.dataset.deletePerson,
+        )),
+      );
+      renderPeople();
+    });
+    document
+      .querySelector("#allocation-list")
+      .addEventListener("click", (e) => {
+        const button = e.target.closest("[data-unassign]");
+        if (button) {
+          state.assignments[button.dataset.unassign] = assignmentsFor(
+            button.dataset.unassign,
+          ).filter((p) => p !== button.dataset.person);
+          renderAllocation();
+          return;
+        }
+        const addButton = e.target.closest("[data-open-item-picker]");
+        if (addButton) openItemPicker(addButton.dataset.openItemPicker);
+      });
+    document
+      .querySelector("#close-item-picker-btn")
+      .addEventListener("click", closeItemPicker);
+    document
+      .querySelector("#item-picker-modal")
+      .addEventListener("click", (event) => {
+        if (event.target.id === "item-picker-modal") {
+          closeItemPicker();
+          return;
+        }
+        const button = event.target.closest("[data-picker-item]");
+        if (button) addItemFromPicker(button.dataset.pickerItem);
+      });
+    document
+      .querySelector("#theme-toggle")
+      .addEventListener("click", () =>
+        setTheme(!document.documentElement.classList.contains("dark")),
+      );
+    window.addEventListener("resize", () => {
+      clearTimeout(allocationResizeTimer);
+      allocationResizeTimer = setTimeout(() => {
+        if (state.step === 3) renderAllocation();
+      }, 150);
+    });
+    document
+      .querySelectorAll("[data-next]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => setStep(+btn.dataset.next)),
+      );
+    document
+      .querySelectorAll("[data-prev]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => setStep(+btn.dataset.prev)),
+      );
+    document
+      .querySelectorAll("[data-step-nav]")
+      .forEach((btn) =>
+        btn.addEventListener("click", () => setStep(+btn.dataset.stepNav)),
+      );
+    document
+      .querySelector("#to-split-btn")
+      .addEventListener("click", () => setStep(3));
+    document
+      .querySelector("#settle-btn")
+      .addEventListener("click", () => setStep(4));
+    document
+      .querySelector("#copy-summary-btn")
+      .addEventListener("click", copySettlementSummary);
+    document
+      .querySelector("#settlement-reset-btn")
+      .addEventListener("click", () =>
+        document.querySelector("#reset-btn").click(),
+      );
+    document.querySelector("#reset-btn").addEventListener("click", () => {
+      if (confirm("Clear this bill and start again?")) {
+        closeCamera();
+        closeSplitModal();
+        closeItemPicker();
+        state.items = [];
+        state.people = [];
+        state.assignments = {};
+        state.ocrText = "";
+        state.charges = {
+          sst: false,
+          service: false,
+          serviceRate: 10,
+          roundingEnabled: false,
+          rounding: 0,
+        };
+        document.querySelector("#receipt-preview").classList.add("hidden");
+        document.querySelector("#preview-empty").classList.remove("hidden");
+        document.querySelector("#ocr-status").classList.add("hidden");
+        renderItems();
+        renderPeople();
+        setStep(1);
+      }
+    });
+    let savedTheme = null;
+    try {
+      savedTheme = localStorage.getItem("sillybilly-theme");
+    } catch (_) {
+      /* Storage may be unavailable. */
+    }
+    setTheme(
+      savedTheme
+        ? savedTheme === "dark"
+        : window.matchMedia("(prefers-color-scheme: dark)").matches,
+    );
+    renderItems();
+    renderPeople();
+    setStep(1);
+  </script>
+</body>
+
+</html>
