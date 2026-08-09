@@ -61,6 +61,11 @@
       background-color: #c2410c !important;
     }
 
+    .dark .step-nav.bg-white span {
+      background-color: #fb923c !important;
+      color: #1c1917 !important;
+    }
+
     .dark .hover\:bg-orange-600:hover,
     .dark .hover\:bg-orange-400:hover {
       background-color: #ea580c !important;
@@ -226,6 +231,10 @@
             </div>
             <div id="ocr-status" class="mt-5 hidden rounded-xl bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800"
               role="status"></div>
+            <button id="view-ocr-text-btn" type="button"
+              class="mt-3 hidden rounded-xl bg-stone-100 px-4 py-3 text-sm font-semibold text-stone-600 hover:bg-stone-200">
+              View the raw OCR text
+            </button>
           </div>
         </div>
       </div>
@@ -249,7 +258,7 @@
             <thead class="bg-stone-50 text-xs font-bold uppercase tracking-wider text-stone-500">
               <tr>
                 <th class="px-4 py-3">Item</th>
-                <th class="w-24 px-4 py-3 text-right">Price (RM)</th>
+                <th class="w-32 px-4 py-3 text-right">Price (RM)</th>
                 <th class="w-20 px-2 py-3 text-right">Actions</th>
               </tr>
             </thead>
@@ -297,13 +306,6 @@
             No extra charges selected.
           </p>
         </div>
-        <details id="ocr-details" class="mt-3 rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-600">
-          <summary class="cursor-pointer font-semibold">
-            View the raw OCR text
-          </summary>
-          <pre id="ocr-text"
-            class="mt-3 overflow-auto whitespace-pre-wrap rounded-lg bg-white p-3 text-xs leading-relaxed text-stone-700"></pre>
-        </details>
         <div class="mt-6 flex justify-end">
           <button data-next="2"
             class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600">
@@ -329,9 +331,11 @@
         <form id="person-form" class="rounded-3xl bg-stone-900 p-6 text-white shadow-lg">
           <label for="person-input" class="text-sm font-bold text-orange-200">A person’s name</label><input
             id="person-input" autocomplete="off" placeholder="e.g. TC"
-            class="mt-3 w-full rounded-xl border-0 bg-white px-4 py-3 text-lg font-semibold text-stone-900 outline-none ring-orange-400 focus:ring-4" /><button
-            class="mt-3 w-full rounded-xl bg-orange-500 px-4 py-3 font-bold hover:bg-orange-400">
-            Add victim
+            class="mt-3 w-full rounded-xl border-0 bg-white px-4 py-3 text-lg font-semibold text-stone-900 outline-none ring-orange-400 focus:ring-4" />
+          <label class="mt-3 flex cursor-pointer items-center gap-3 text-sm font-bold text-orange-200"><input
+              id="person-paid" type="checkbox" class="h-4 w-4 accent-orange-500" />They paid the bill</label><button
+            class="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-bold hover:bg-orange-400">
+            Add person
           </button>
           <p class="mt-3 text-center text-xs text-stone-400">
             Tip: everyone can share a single item — just drop it on each
@@ -377,7 +381,7 @@
               several people to split it equally.</span>
           </p>
         </div>
-        <div class="rounded-2xl bg-orange-100 px-5 py-3 text-right">
+        <div class="rounded-2xl bg-orange-100 px-5 py-3 text-right ml-auto mr-0">
           <p class="text-xs font-bold uppercase tracking-wide text-orange-700">
             Assigned total
           </p>
@@ -413,39 +417,39 @@
     </section>
 
     <section id="step-4" class="step-panel hidden">
-      <div class="mb-7 flex flex-wrap items-end justify-between gap-5">
-        <div class="max-w-2xl">
-          <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
-            Step 4 of 4
-          </p>
-          <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
-            All sorted 🎉
-          </h1>
-          <p class="mt-3 text-lg text-stone-600">
-            Here’s what each person should pay. Shared items are divided
-            evenly.
-          </p>
-        </div>
-        <div class="rounded-2xl bg-emerald-50 px-5 py-3 text-right ml-auto mr-0">
-          <p class="text-xs font-bold uppercase tracking-wide text-emerald-800">
-            Receipt total
-          </p>
-          <p id="settlement-total" class="text-2xl font-black text-emerald-700">
-            RM0.00
-          </p>
-          <p id="settlement-status" class="mt-1 text-xs font-semibold text-emerald-800"></p>
-        </div>
+      <div class="mb-7">
+        <p class="mb-2 text-sm font-bold uppercase tracking-[.16em] text-orange-600">
+          Step 4 of 4
+        </p>
+        <h1 class="text-4xl font-black tracking-tight sm:text-5xl">
+          All sorted 🎉
+        </h1>
+        <p class="mt-3 text-lg text-stone-600">
+          Here's the final breakdown.
+        </p>
       </div>
-      <div class="rounded-3xl border border-emerald-200 bg-emerald-50 p-5 sm:p-6">
+      <div class="rounded-3xl border border-orange-200 bg-orange-50 p-5 sm:p-6">
+        <div class="mb-7 border-b border-stone-200 pb-5 flex flex-wrap items-end justify-between gap-5">
+          <div id="settlement-paid-section" class="hidden">
+            <p class="text-sm font-bold uppercase tracking-wide text-stone-500"><span id="settlement-payer-name" class="text-stone-900"></span> should receive</p>
+            <p id="settlement-receive-amount" class="text-3xl font-black text-emerald-600 sm:text-4xl">RM0.00</p>
+            <p id="settlement-paid-by" class="mt-1 text-xs font-medium text-stone-500"></p>
+          </div>
+          <div class="text-left md:!text-right md:mr-0 md:ml-auto">
+            <p class="text-xs font-bold uppercase tracking-wide text-stone-500">Receipt total</p>
+            <p id="settlement-total" class="text-2xl font-black text-stone-900 sm:text-3xl">RM0.00</p>
+            <p id="settlement-status" class="mt-1 text-xs font-medium text-stone-500"></p>
+          </div>
+        </div>
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 class="text-xl font-black">Who owes what</h2>
-            <p class="mt-1 text-sm text-emerald-800">
-              Ready to screenshot or send to the group chat.
+            <h2 class="text-xl font-black">Settlement</h2>
+            <p class="mt-1 text-sm text-stone-500">
+              Who needs to pay whom.
             </p>
           </div>
           <button id="copy-summary-btn" type="button"
-            class="rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-sm font-bold text-emerald-700 hover:bg-emerald-100">
+            class="rounded-xl border border-orange-200 bg-orange-500 px-4 py-2.5 text-sm font-bold text-white hover:bg-orange-600">
             Copy summary
           </button>
         </div>
@@ -454,7 +458,7 @@
       <div class="mt-6 flex flex-wrap justify-between gap-3">
         <button data-prev="3" class="rounded-xl px-4 py-3 font-bold text-stone-500 hover:bg-stone-100">
           ← Back</button><button id="settlement-reset-btn"
-          class="rounded-xl bg-orange-500 px-6 py-3 font-bold text-white shadow-sm hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-stone-300">
+          class="rounded-xl border border-stone-300 bg-white px-6 py-3 font-bold text-stone-700 shadow-sm hover:bg-stone-50 disabled:cursor-not-allowed disabled:bg-stone-100 disabled:text-stone-400">
           Start a new bill
         </button>
       </div>
@@ -501,9 +505,23 @@
           Close ×
         </button>
       </div>
-      <div class="flex-1 overflow-auto rounded-2xl bg-black/30 text-center">
+      <div class="flex-1 overflow-auto rounded-2xl text-center">
         <img id="zoomed-receipt" class="mx-auto w-full h-auto md:w-auto md:h-full object-contain" alt="Zoomed uploaded receipt" />
       </div>
+    </div>
+  </div>
+
+  <div id="ocr-text-modal"
+    class="fixed inset-0 z-[65] hidden items-end bg-stone-950/70 p-4 sm:items-center sm:justify-center" role="dialog"
+    aria-modal="true" aria-labelledby="ocr-text-modal-title">
+    <div class="max-h-[80vh] w-full max-w-lg overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl">
+      <div class="flex items-center justify-between border-b border-stone-100 px-5 py-4">
+        <h2 id="ocr-text-modal-title" class="font-black">Raw OCR text</h2>
+        <button id="close-ocr-text-modal-btn" type="button"
+          class="rounded-lg px-2 text-xl text-stone-400 hover:bg-stone-100" aria-label="Close">×</button>
+      </div>
+      <pre id="ocr-text-modal-content"
+        class="max-h-[60vh] overflow-auto whitespace-pre-wrap p-5 text-xs leading-relaxed text-stone-700"></pre>
     </div>
   </div>
 
@@ -562,12 +580,12 @@
           ×
         </button>
       </div>
-      <div id="item-picker-list" class="max-h-[60vh] space-y-5 overflow-y-auto p-4"></div>
+      <div id="item-picker-list" class="max-h-[60vh] space-y-12 overflow-y-auto px-5 py-4"></div>
     </div>
   </div>
 
   <div id="assignment-toast"
-    class="hidden fixed top-5 md:bottom-5 md:top-auto left-1/2 z-[90] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-stone-800 px-4 py-3 text-center text-xs font-bold text-white shadow-xl"
+    class="hidden fixed top-5 md:bottom-5 md:top-auto left-1/2 z-[90] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 rounded-2xl bg-stone-800 px-4 py-3 text-center text-xs font-bold text-white shadow-xl opacity-0 transition-opacity duration-300"
     role="status" aria-live="polite"></div>
 
   <script>
@@ -576,6 +594,7 @@
       items: [],
       people: [],
       assignments: {},
+      payerId: null,
       ocrText: "",
       charges: {
         sst: false,
@@ -756,9 +775,8 @@
         .querySelector("#items-review")
         .classList.toggle("hidden", !state.items.length);
       document
-        .querySelector("#ocr-details")
+        .querySelector("#view-ocr-text-btn")
         .classList.toggle("hidden", !state.ocrText);
-      document.querySelector("#ocr-text").textContent = state.ocrText;
       renderCharges();
     }
     function esc(value) {
@@ -774,6 +792,7 @@
       splitTargetId = null;
       document.querySelector("#split-item-modal").classList.add("hidden");
       document.querySelector("#split-item-modal").classList.remove("flex");
+      document.body.style.overflow = "";
     }
     function cleanSplitName(name, count) {
       return (
@@ -812,6 +831,7 @@
       document.querySelector("#split-count-input").value = 2;
       document.querySelector("#split-item-modal").classList.remove("hidden");
       document.querySelector("#split-item-modal").classList.add("flex");
+      document.body.style.overflow = "hidden";
       updateSplitPreview();
       document.querySelector("#split-count-input").focus();
     }
@@ -851,8 +871,10 @@
       const list = document.querySelector("#people-list");
       list.innerHTML = state.people
         .map(
-          (person) =>
-            `<div class="flex items-center justify-between px-5 py-4"><span class="font-bold">${esc(person.name)}</span><button data-delete-person="${person.id}" class="rounded-lg px-2 py-1 text-sm font-bold text-stone-400 hover:bg-red-50 hover:text-red-500">Remove</button></div>`,
+          (person) => {
+            const isPayer = state.payerId === person.id;
+            return `<div class="flex items-center justify-between px-5 py-4"><div class="flex items-center gap-2"><span class="font-bold">${esc(person.name)}</span>${isPayer ? '<span class="rounded-full border border-orange-300 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Bill Owner</span>' : ""}</div><div class="flex items-center gap-2"><button data-set-payer="${person.id}" class="rounded-lg px-2 py-1 text-xs font-bold ${isPayer ? "text-emerald-600" : "text-stone-400 hover:text-orange-500"}" title="Mark as the person who paid the bill">${isPayer ? "✓ Paid" : "Set payer"}</button><button data-delete-person="${person.id}" aria-label="Remove ${esc(person.name)}" title="Remove" class="rounded-lg p-1 text-stone-400 hover:bg-red-50 hover:text-red-500"><svg aria-hidden="true" viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div></div>`;
+          },
         )
         .join("");
       document.querySelector("#people-count").textContent =
@@ -889,20 +911,6 @@
         total: roundMoney(bill.beforeRounding + rounding),
       };
     }
-    function settlementSummaryText() {
-      const receipt = receiptBreakdown();
-      const lines = [
-        "Silly Billy — bill split",
-        `Receipt total: ${money(receipt.total)}`,
-        "",
-      ];
-      state.people.forEach((person) =>
-        lines.push(
-          `${person.name}: ${money(billBreakdown(person.id).total)}`,
-        ),
-      );
-      return lines.join("\n");
-    }
     function renderFinalSummary() {
       const receipt = receiptBreakdown();
       const allocated = state.items
@@ -915,23 +923,98 @@
         allocated === itemTotal()
           ? `All items assigned across ${state.people.length} people`
           : `${money(allocated)} of ${money(itemTotal())} in items assigned`;
+      const payer = state.people.find((p) => p.id === state.payerId);
+      const paidSection = document.querySelector("#settlement-paid-section");
+      if (payer) {
+        const payerBill = billBreakdown(payer.id);
+        const receive = roundMoney(receipt.total - payerBill.total);
+        document.querySelector("#settlement-receive-amount").textContent =
+          money(receive);
+        document.querySelector("#settlement-payer-name").textContent = payer.name;
+        document.querySelector("#settlement-paid-by").textContent =
+          `Paid ${money(receipt.total)} · their share is ${money(payerBill.total)}`;
+        paidSection.classList.remove("hidden");
+      } else {
+        paidSection.classList.add("hidden");
+      }
       document.querySelector("#final-list").innerHTML = state.people
         .map((person) => {
           const bill = billBreakdown(person.id);
-
+          const isPayer = person.id === state.payerId;
           const theirItems = state.items.filter((item) =>
             assignmentsFor(item.id).includes(person.id),
           );
+          const highlight = isPayer ? "border-2 border-orange-400 bg-white" : "border border-stone-100 bg-white";
 
           return `
-          <div class="rounded-2xl bg-white px-4 py-4 shadow-sm">
-            <p class="font-bold">${esc(person.name)}</p>
-            <p class="mt-1 text-2xl font-black text-emerald-700">${money(bill.total)}</p>
-            <p class="mt-2 text-xs font-semibold text-stone-600">Items ${money(bill.subtotal)}${bill.sst ? ` · SST ${money(bill.sst)}` : ""}${bill.service ? ` · Service ${money(bill.service)}` : ""}${bill.rounding ? ` · Round ${bill.rounding >= 0 ? "+" : "−"}${money(Math.abs(bill.rounding))}` : ""}</p>
-            <ul class="list-disc list-inside mt-2 text-xs font-semibold text-stone-500">${theirItems.map((item) => `<li>${item.name} (${money(item.price)})</li>`).join("")}</ul>
+          <div class="rounded-2xl ${highlight} px-4 py-4 shadow-sm">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0"><p class="font-bold text-stone-900 truncate">${esc(person.name)}</p>${isPayer ? '<span class="ml-1 rounded-full border border-orange-300 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Bill Owner</span>' : ""}</div>
+              <p class="text-2xl font-black text-stone-600">${money(bill.total)}</p>
+            </div>
+            <p class="mt-2 text-xs font-medium text-stone-500">Items ${money(bill.subtotal)}${bill.sst ? ` · SST ${money(bill.sst)}` : ""}${bill.service ? ` · Service ${money(bill.service)}` : ""}${bill.rounding ? ` · Round ${bill.rounding >= 0 ? "+" : "−"}${money(Math.abs(bill.rounding))}` : ""}</p>
+            <ul class="list-disc list-inside mt-2 text-xs text-stone-400">${theirItems.map((item) => `<li>${esc(item.name)} <span class="font-semibold">(${money(item.price)})</span></li>`).join("")}</ul>
           </div>`;
         })
         .join("");
+    }
+    function settlementSummaryText() {
+      const receipt = receiptBreakdown();
+      const serviceRate = state.charges.serviceRate;
+      const separator = "────────────────────────";
+      const lines = ["🧾 Bill Summary", ""];
+
+      state.people.forEach((person) => {
+        const bill = billBreakdown(person.id);
+        const isPayer = person.id === state.payerId;
+        const theirItems = state.items.filter((item) =>
+          assignmentsFor(item.id).includes(person.id),
+        );
+
+        const charges = [];
+        if (bill.sst) charges.push(`SST (6%): ${money(bill.sst)}`);
+        if (bill.service) charges.push(`Service Charge (${serviceRate}%): ${money(bill.service)}`);
+        if (bill.rounding) charges.push(`Round Adj: ${bill.rounding >= 0 ? "+" : "−"}${money(Math.abs(bill.rounding))}`);
+
+        const totalRows = theirItems.length + 1 + charges.length;
+        let rowIdx = 0;
+
+        lines.push(`👤 ${person.name}${isPayer ? " · Bill Owner" : ""}`);
+        lines.push(money(bill.total));
+
+        theirItems.forEach((item) => {
+          rowIdx++;
+          const branch = rowIdx < totalRows ? "├─" : "└─";
+          lines.push(`${branch} ${esc(item.name)} — ${money(item.price)}`);
+        });
+
+        rowIdx++;
+        const itemsBranch = rowIdx < totalRows ? "├─" : "└─";
+        lines.push(`${itemsBranch} Items: ${money(bill.subtotal)}`);
+
+        charges.forEach((charge) => {
+          rowIdx++;
+          const branch = rowIdx < totalRows ? "├─" : "└─";
+          lines.push(`${branch} ${charge}`);
+        });
+
+        lines.push("");
+        lines.push(separator);
+        lines.push("");
+      });
+
+      lines.push("💰 Total");
+      lines.push("");
+      lines.push(`Subtotal: ${money(receipt.subtotal)}`);
+      if (receipt.sst) lines.push(`SST (6%): ${money(receipt.sst)}`);
+      if (receipt.service) lines.push(`Service Charge (${serviceRate}%): ${money(receipt.service)}`);
+      if (receipt.rounding) lines.push(`Round Adj: ${receipt.rounding >= 0 ? "+" : "−"}${money(Math.abs(receipt.rounding))}`);
+      lines.push("");
+      lines.push(separator);
+      lines.push("");
+      lines.push(`💰 Grand Total: ${money(receipt.total)}`);
+
+      return lines.join("\n");
     }
     async function copySettlementSummary() {
       const summary = settlementSummaryText();
@@ -950,6 +1033,7 @@
         showAssignmentToast("Settlement summary copied.");
       }
     }
+
     function itemCard(item, options = {}) {
       const holders = assignmentsFor(item.id);
       const drag = options.draggable
@@ -999,9 +1083,9 @@
     function pickerSection(title, items, person, emptyText = "") {
       if (!items.length)
         return emptyText
-          ? `<p class="rounded-xl bg-stone-50 px-4 py-3 text-sm text-stone-500">${emptyText}</p>`
+          ? `<p class="rounded-xl bg-stone-100 px-4 py-3 text-sm text-stone-500">${emptyText}</p>`
           : "";
-      return `<section><h3 class="mb-2 px-1 text-xs font-bold uppercase tracking-[.14em] text-stone-500">${title}</h3><div class="space-y-2">${items.map((item) => itemPickerRow(item, person)).join("")}</div></section>`;
+      return `<section><h3 class="mb-2 px-1 text-xs font-bold uppercase tracking-[.14em] text-stone-600">${title}</h3><div class="space-y-2">${items.map((item) => itemPickerRow(item, person)).join("")}</div></section>`;
     }
     function openItemPicker(personId) {
       const person = state.people.find(
@@ -1022,6 +1106,7 @@
       const modal = document.querySelector("#item-picker-modal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
       document.querySelector("#close-item-picker-btn").focus();
     }
     function closeItemPicker() {
@@ -1029,16 +1114,18 @@
       const modal = document.querySelector("#item-picker-modal");
       modal.classList.add("hidden");
       modal.classList.remove("flex");
+      document.body.style.overflow = "";
     }
     function showAssignmentToast(message) {
       const toast = document.querySelector("#assignment-toast");
       toast.textContent = message;
       toast.classList.remove("hidden");
       clearTimeout(assignmentToastTimer);
-      assignmentToastTimer = setTimeout(
-        () => toast.classList.add("hidden"),
-        2000,
-      );
+      requestAnimationFrame(() => toast.classList.remove("opacity-0"));
+      assignmentToastTimer = setTimeout(() => {
+        toast.classList.add("opacity-0");
+        setTimeout(() => toast.classList.add("hidden"), 300);
+      }, 2000);
     }
     function addItemFromPicker(itemId) {
       const person = state.people.find(
@@ -1064,7 +1151,7 @@
           );
           const bill = billBreakdown(person.id);
           const formula = `${money(bill.subtotal)}${bill.sst ? ` + ${money(bill.sst)} SST` : ""}${bill.service ? ` + ${money(bill.service)} service` : ""}${bill.rounding ? ` ${bill.rounding >= 0 ? "+" : "−"} ${money(Math.abs(bill.rounding))} round` : ""}`;
-          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-3 transition duration-150" data-drop-person="${person.id}"><div class="mb-3 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><p class="mt-0.5 text-xs font-medium text-stone-500">Drop an item here to add or share it.</p></div><button type="button" data-open-item-picker="${person.id}" aria-label="Add item to ${esc(person.name)}" title="Add item" class="rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600 md:grid md:h-9 md:w-9 md:place-items-center md:rounded-full md:p-0"><span class="md:hidden">+ Add item</span><span class="hidden text-xl leading-none md:block" aria-hidden="true">+</span></button></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id, draggable: true })).join("") || `<p class="p-3 text-center text-sm text-stone-400">No items yet.</p>`}</div></div></article>`;
+          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2>${state.payerId === person.id ? '<span class="ml-1 rounded-full border border-orange-300 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-orange-700">Bill Owner</span>' : ""}</div><div class="text-left sm:text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-3 transition duration-150" data-drop-person="${person.id}"><div class="mb-3 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><p class="hidden md:block mt-0.5 text-xs font-medium text-stone-500">Drop an item here to add or share it.</p></div><button type="button" data-open-item-picker="${person.id}" aria-label="Add item to ${esc(person.name)}" title="Add item" class="rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600 md:grid md:h-9 md:w-9 md:place-items-center md:rounded-full md:p-0"><span class="md:hidden">+ Add item</span><span class="hidden text-xl leading-none md:block" aria-hidden="true">+</span></button></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id, draggable: true })).join("") || `<p class="p-3 text-center text-sm text-stone-400">No items yet.</p>`}</div></div></article>`;
         })
         .join("");
       const unassignedItems = state.items.filter(
@@ -1525,8 +1612,22 @@
       status.classList.remove("hidden");
       status.textContent = message;
     }
+    function closeOcrTextModal() {
+      document.querySelector("#ocr-text-modal").classList.add("hidden");
+      document.querySelector("#ocr-text-modal").classList.remove("flex");
+      document.body.style.overflow = "";
+    }
+    function openOcrTextModal() {
+      document.querySelector("#ocr-text-modal-content").textContent = state.ocrText;
+      const modal = document.querySelector("#ocr-text-modal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      document.body.style.overflow = "hidden";
+      document.querySelector("#close-ocr-text-modal-btn").focus();
+    }
     function closeReceiptZoom() {
       document.querySelector("#receipt-zoom-modal").classList.add("hidden");
+      document.body.style.overflow = "";
     }
     function openReceiptZoom() {
       const preview = document.querySelector("#receipt-preview");
@@ -1535,6 +1636,7 @@
       document
         .querySelector("#receipt-zoom-modal")
         .classList.remove("hidden");
+      document.body.style.overflow = "hidden";
       document.querySelector("#close-receipt-zoom-btn").focus();
     }
     function closeCamera() {
@@ -1544,6 +1646,7 @@
       document.querySelector("#camera-video").srcObject = null;
       document.querySelector("#camera-modal").classList.add("hidden");
       document.querySelector("#camera-modal").classList.remove("flex");
+      document.body.style.overflow = "";
     }
     async function openCamera() {
       if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
@@ -1561,6 +1664,7 @@
         video.srcObject = cameraStream;
         document.querySelector("#camera-modal").classList.remove("hidden");
         document.querySelector("#camera-modal").classList.add("flex");
+        document.body.style.overflow = "hidden";
         await video.play();
       } catch (error) {
         console.error(error);
@@ -1653,11 +1757,23 @@
       .addEventListener("click", (event) => {
         if (event.target.id === "receipt-zoom-modal") closeReceiptZoom();
       });
+    document
+      .querySelector("#view-ocr-text-btn")
+      .addEventListener("click", openOcrTextModal);
+    document
+      .querySelector("#close-ocr-text-modal-btn")
+      .addEventListener("click", closeOcrTextModal);
+    document
+      .querySelector("#ocr-text-modal")
+      .addEventListener("click", (event) => {
+        if (event.target.id === "ocr-text-modal") closeOcrTextModal();
+      });
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         closeReceiptZoom();
         closeSplitModal();
         closeItemPicker();
+        closeOcrTextModal();
       }
     });
     document
@@ -1773,14 +1889,28 @@
       const input = document.querySelector("#person-input");
       const name = input.value.trim();
       if (!name) return;
-      state.people.push({ id: id(), name });
+      const personId = id();
+      const paid = document.querySelector("#person-paid").checked;
+      if (paid) state.payerId = personId;
+      state.people.push({ id: personId, name });
       input.value = "";
+      document.querySelector("#person-paid").checked = false;
       renderPeople();
       input.focus();
     });
     document.querySelector("#people-list").addEventListener("click", (e) => {
+      const payerButton = e.target.closest("[data-set-payer]");
+      if (payerButton) {
+        state.payerId = state.payerId === payerButton.dataset.setPayer
+          ? null
+          : payerButton.dataset.setPayer;
+        renderPeople();
+        return;
+      }
       const button = e.target.closest("[data-delete-person]");
       if (!button) return;
+      if (state.payerId === button.dataset.deletePerson)
+        state.payerId = null;
       state.people = state.people.filter(
         (p) => p.id !== button.dataset.deletePerson,
       );
@@ -1855,6 +1985,7 @@
     document
       .querySelector("#copy-summary-btn")
       .addEventListener("click", copySettlementSummary);
+
     document
       .querySelector("#settlement-reset-btn")
       .addEventListener("click", () =>
@@ -1868,6 +1999,7 @@
         state.items = [];
         state.people = [];
         state.assignments = {};
+        state.payerId = null;
         state.ocrText = "";
         state.charges = {
           sst: false,
