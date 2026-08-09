@@ -245,12 +245,12 @@
           </button>
         </div>
         <div class="overflow-hidden rounded-2xl border border-stone-200 bg-white shadow-sm">
-          <table class="w-full text-left">
+          <table class="w-full table-fixed text-left">
             <thead class="bg-stone-50 text-xs font-bold uppercase tracking-wider text-stone-500">
               <tr>
                 <th class="px-4 py-3">Item</th>
-                <th class="w-32 px-4 py-3 text-right">Price (RM)</th>
-                <th class="w-28 px-2 py-3 text-right">Actions</th>
+                <th class="w-24 px-4 py-3 text-right">Price (RM)</th>
+                <th class="w-20 px-2 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody id="items-body"></tbody>
@@ -502,7 +502,7 @@
         </button>
       </div>
       <div class="flex-1 overflow-auto rounded-2xl bg-black/30 text-center">
-        <img id="zoomed-receipt" class="mx-auto min-h-full max-w-none object-contain" alt="Zoomed uploaded receipt" />
+        <img id="zoomed-receipt" class="mx-auto w-full h-auto md:w-auto md:h-full object-contain" alt="Zoomed uploaded receipt" />
       </div>
     </div>
   </div>
@@ -952,8 +952,7 @@
     }
     function itemCard(item, options = {}) {
       const holders = assignmentsFor(item.id);
-      const drag =
-        options.draggable && isAllocationDragEnabled()
+      const drag = options.draggable
           ? `draggable="true" data-drag-item="${item.id}"`
           : "";
       const shared =
@@ -974,7 +973,7 @@
       return `<article ${drag} class="item-card flex items-center justify-between gap-2 rounded-xl border border-stone-200 bg-white px-3 py-3 shadow-sm ${drag ? "cursor-grab active:cursor-grabbing" : ""}"><div class="min-w-0"><p class="truncate font-bold">${esc(item.name)}</p><div class="mt-1 flex items-center gap-2">${shared}</div></div><div class="flex shrink-0 items-center"><span class="font-black text-orange-600">${displayedPrice}</span>${remove}</div></article>`;
     }
     function isAllocationDragEnabled() {
-      return window.matchMedia("(min-width: 768px)").matches;
+      return true;
     }
     function personNamesFor(itemId) {
       return assignmentsFor(itemId)
@@ -1065,14 +1064,7 @@
           );
           const bill = billBreakdown(person.id);
           const formula = `${money(bill.subtotal)}${bill.sst ? ` + ${money(bill.sst)} SST` : ""}${bill.service ? ` + ${money(bill.service)} service` : ""}${bill.rounding ? ` ${bill.rounding >= 0 ? "+" : "−"} ${money(Math.abs(bill.rounding))} round` : ""}`;
-          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-3 transition duration-150" data-drop-person="${person.id}"><div class="mb-3 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><p class="mt-0.5 hidden text-xs font-medium text-stone-500 lg:block">Drop an item here to add or share it.</p></div><button type="button" data-open-item-picker="${person.id}" aria-label="Add item to ${esc(person.name)}" title="Add item" class="rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600 md:grid md:h-9 md:w-9 md:place-items-center md:rounded-full md:p-0"><span class="md:hidden">+ Add item</span><span class="hidden text-xl leading-none md:block" aria-hidden="true">+</span></button></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id, draggable: true })).join("") || `<p class="p-3 text-center text-sm text-stone-400"><span class="lg:hidden">No items added yet.</span><span class="hidden lg:inline">Drop items here.</span></p>`}</div></div></article>`;
-          const choices = state.items
-            .map(
-              (item) =>
-                `<option value="${item.id}">${esc(item.name)} — ${money(item.price)}${assignmentsFor(item.id).includes(person.id) ? " (already added)" : ""}</option>`,
-            )
-            .join("");
-          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border border-stone-200 bg-stone-50 p-3"><div class="mb-3 flex items-center justify-between gap-3"><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><details class="relative"><summary class="cursor-pointer list-none rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600">+ Add item</summary><div class="absolute right-0 z-10 mt-2 w-64 rounded-xl border border-stone-200 bg-white p-2 shadow-xl"><label class="sr-only" for="add-item-${person.id}">Add an item to ${esc(person.name)}</label><select id="add-item-${person.id}" data-add-item="${person.id}" class="w-full rounded-lg border border-stone-200 px-3 py-2 text-sm font-semibold"><option value="">Choose a receipt item…</option>${choices}</select></div></details></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id })).join("") || `<p class="p-3 text-center text-sm text-stone-400">No items added yet.</p>`}</div></div></article>`;
+          return `<article class="rounded-3xl border border-stone-200 bg-white p-4 shadow-sm sm:p-5"><div class="flex items-start justify-between gap-3"><div class="flex items-center gap-3"><span class="grid h-10 w-10 place-items-center rounded-full bg-stone-900 font-black text-white">${esc(person.name).charAt(0).toUpperCase()}</span><h2 class="text-xl font-black">${esc(person.name)}</h2></div><div class="text-right"><p class="text-xl font-black text-orange-600">${money(bill.total)}</p><p class="mt-1 text-[11px] font-medium text-stone-500">Formula: ${formula} = <span class="font-bold">${money(bill.total)}</span></p></div></div><div class="mt-4 rounded-2xl border-2 border-dashed border-stone-200 bg-stone-50 p-3 transition duration-150" data-drop-person="${person.id}"><div class="mb-3 flex items-center justify-between gap-3"><div><h3 class="text-sm font-extrabold">${esc(person.name)}'s items</h3><p class="mt-0.5 text-xs font-medium text-stone-500">Drop an item here to add or share it.</p></div><button type="button" data-open-item-picker="${person.id}" aria-label="Add item to ${esc(person.name)}" title="Add item" class="rounded-lg bg-orange-500 px-3 py-2 text-sm font-bold text-white hover:bg-orange-600 md:grid md:h-9 md:w-9 md:place-items-center md:rounded-full md:p-0"><span class="md:hidden">+ Add item</span><span class="hidden text-xl leading-none md:block" aria-hidden="true">+</span></button></div><div class="min-h-12 space-y-2">${theirs.map((item) => itemCard(item, { personId: person.id, draggable: true })).join("") || `<p class="p-3 text-center text-sm text-stone-400">No items yet.</p>`}</div></div></article>`;
         })
         .join("");
       const unassignedItems = state.items.filter(
@@ -1090,9 +1082,7 @@
             const status = holders.length
               ? `Assigned to ${holders.join(", ")}`
               : "Not assigned yet";
-            const drag = isAllocationDragEnabled()
-              ? `draggable="true" data-drag-item="${item.id}"`
-              : "";
+            const drag = `draggable="true" data-drag-item="${item.id}"`;
             return `<div ${drag} class="flex items-center justify-between gap-3 rounded-xl bg-stone-50 px-4 py-3 ${drag ? "cursor-grab active:cursor-grabbing" : ""}"><div class="min-w-0"><p class="truncate font-bold">${esc(item.name)}</p><p class="mt-1 text-xs font-medium text-stone-500">${esc(status)}</p></div><span class="shrink-0 font-black text-orange-600">${money(item.price)}</span></div>`;
           })
           .join("") ||
@@ -1816,6 +1806,7 @@
         const addButton = e.target.closest("[data-open-item-picker]");
         if (addButton) openItemPicker(addButton.dataset.openItemPicker);
       });
+
     document
       .querySelector("#close-item-picker-btn")
       .addEventListener("click", closeItemPicker);
