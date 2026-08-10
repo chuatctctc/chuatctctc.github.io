@@ -220,10 +220,9 @@
               <label
                 class="cursor-pointer rounded-xl bg-stone-900 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-stone-700">Upload
                 receipt<input id="receipt-input" type="file" accept="image/*" class="hidden" /></label>
-              <button id="camera-btn" type="button"
-                class="rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 hover:border-orange-300">
-                Use camera
-              </button>
+              <label
+                class="cursor-pointer rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 hover:border-orange-300">Use
+                camera<input id="camera-input" type="file" accept="image/*" capture="environment" class="hidden" /></label>
               <button id="sample-btn"
                 class="rounded-xl px-3 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50">
                 Try sample data
@@ -465,37 +464,6 @@
     </section>
   </main>
 
-  <div id="camera-modal"
-    class="fixed inset-0 z-50 hidden items-end bg-stone-950/70 p-3 sm:items-center sm:justify-center" role="dialog"
-    aria-modal="true" aria-labelledby="camera-title">
-    <div class="w-full max-w-xl overflow-hidden rounded-3xl bg-white shadow-2xl">
-      <div class="flex items-center justify-between px-5 py-4">
-        <div>
-          <h2 id="camera-title" class="font-black">Take a receipt photo</h2>
-          <p class="text-sm text-stone-500">
-            Keep the whole receipt in frame.
-          </p>
-        </div>
-        <button id="close-camera-btn" class="rounded-lg px-3 py-2 text-xl text-stone-500 hover:bg-stone-100"
-          aria-label="Close camera">
-          ×
-        </button>
-      </div>
-      <div class="bg-stone-900">
-        <video id="camera-video" autoplay playsinline muted class="max-h-[65vh] w-full object-contain"
-          aria-label="Live camera preview"></video><canvas id="camera-canvas" class="hidden"></canvas>
-      </div>
-      <div class="flex gap-3 p-4">
-        <button id="cancel-camera-btn"
-          class="flex-1 rounded-xl border border-stone-200 px-4 py-3 font-bold text-stone-600 hover:bg-stone-50">
-          Cancel</button><button id="capture-camera-btn"
-          class="flex-1 rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600">
-          Capture photo
-        </button>
-      </div>
-    </div>
-  </div>
-
   <div id="receipt-zoom-modal" class="fixed inset-0 z-[60] hidden bg-stone-950/90 p-4 sm:p-8" role="dialog"
     aria-modal="true" aria-label="Zoomed receipt image">
     <div class="mx-auto flex h-full max-w-5xl flex-col">
@@ -607,7 +575,6 @@
     const money = (n) => `RM${Number(n || 0).toFixed(2)}`;
     const id = () => Math.random().toString(36).slice(2, 10);
     const sampleItems = [["Chicken Rice", 12]];
-    let cameraStream = null;
     let ocrWorker = null;
     let splitTargetId = null;
     let pickerPersonId = null;
@@ -1639,73 +1606,15 @@
       document.body.style.overflow = "hidden";
       document.querySelector("#close-receipt-zoom-btn").focus();
     }
-    function closeCamera() {
-      if (cameraStream)
-        cameraStream.getTracks().forEach((track) => track.stop());
-      cameraStream = null;
-      document.querySelector("#camera-video").srcObject = null;
-      document.querySelector("#camera-modal").classList.add("hidden");
-      document.querySelector("#camera-modal").classList.remove("flex");
-      document.body.style.overflow = "";
-    }
-    async function openCamera() {
-      if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
-        setCameraMessage(
-          "Live camera needs a secure page. Open this through localhost or HTTPS, then try again.",
-        );
-        return;
-      }
-      try {
-        cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: { ideal: "environment" } },
-          audio: false,
-        });
-        const video = document.querySelector("#camera-video");
-        video.srcObject = cameraStream;
-        document.querySelector("#camera-modal").classList.remove("hidden");
-        document.querySelector("#camera-modal").classList.add("flex");
-        document.body.style.overflow = "hidden";
-        await video.play();
-      } catch (error) {
-        console.error(error);
-        const denied =
-          error.name === "NotAllowedError" || error.name === "SecurityError";
-        setCameraMessage(
-          denied
-            ? "Camera permission was blocked. Allow camera access in your browser settings, then try again."
-            : "We could not open a camera on this device. Upload a photo instead.",
-        );
-      }
-    }
-    function captureCameraPhoto() {
-      const video = document.querySelector("#camera-video");
-      if (!video.videoWidth) {
-        setCameraMessage(
-          "The camera is still warming up. Please try capture again in a moment.",
-        );
-        return;
-      }
-      const canvas = document.querySelector("#camera-canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas
-        .getContext("2d")
-        .drawImage(video, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        (blob) => {
-          if (blob)
-            handleFile(
-              new File([blob], "receipt-camera.jpg", { type: "image/jpeg" }),
-            );
-        },
-        "image/jpeg",
-        0.92,
-      );
-      closeCamera();
-    }
     document
       .querySelector("#receipt-input")
       .addEventListener("change", (e) => handleFile(e.target.files[0]));
+    document
+      .querySelector("#camera-input")
+      .addEventListener("change", (e) => {
+        handleFile(e.target.files[0]);
+        e.target.value = "";
+      });
     const uploadZone = document.querySelector("#upload-zone");
     ["dragenter", "dragover"].forEach((eventName) =>
       uploadZone.addEventListener(eventName, (event) => {
@@ -1735,9 +1644,6 @@
       else if (event.dataTransfer.files.length)
         setCameraMessage("Please drop an image file of the receipt.");
     });
-    document
-      .querySelector("#camera-btn")
-      .addEventListener("click", openCamera);
     document
       .querySelector("#receipt-preview")
       .addEventListener("click", openReceiptZoom);
@@ -1776,15 +1682,6 @@
         closeOcrTextModal();
       }
     });
-    document
-      .querySelector("#close-camera-btn")
-      .addEventListener("click", closeCamera);
-    document
-      .querySelector("#cancel-camera-btn")
-      .addEventListener("click", closeCamera);
-    document
-      .querySelector("#capture-camera-btn")
-      .addEventListener("click", captureCameraPhoto);
     document.querySelector("#sample-btn").addEventListener("click", () => {
       state.items = sampleItems.map(([name, price]) => ({
         id: id(),
@@ -1993,7 +1890,6 @@
       );
     document.querySelector("#reset-btn").addEventListener("click", () => {
       if (confirm("Clear this bill and start again?")) {
-        closeCamera();
         closeSplitModal();
         closeItemPicker();
         state.items = [];
@@ -2027,6 +1923,15 @@
         ? savedTheme === "dark"
         : window.matchMedia("(prefers-color-scheme: dark)").matches,
     );
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      document.querySelector("label:has(> #camera-input)").classList.add("hidden");
+    } else {
+      navigator.mediaDevices.enumerateDevices().then((devices) => {
+        const hasCamera = devices.some((d) => d.kind === "videoinput");
+        if (!hasCamera)
+          document.querySelector("label:has(> #camera-input)").classList.add("hidden");
+      });
+    }
     renderItems();
     renderPeople();
     setStep(1);
