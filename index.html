@@ -223,6 +223,10 @@
               <label
                 class="cursor-pointer rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 hover:border-orange-300">Use
                 camera<input id="camera-input" type="file" accept="image/*" capture="environment" class="hidden" /></label>
+              <button id="live-scan-btn" type="button"
+                class="rounded-xl border border-stone-200 bg-white px-5 py-3 text-sm font-bold text-stone-700 hover:border-orange-300">
+                Live scan
+              </button>
               <button id="sample-btn"
                 class="rounded-xl px-3 py-3 text-sm font-semibold text-orange-600 hover:bg-orange-50">
                 Try sample data
@@ -475,6 +479,51 @@
       </div>
       <div class="flex-1 overflow-auto rounded-2xl text-center">
         <img id="zoomed-receipt" class="mx-auto w-full h-auto md:w-auto md:h-full object-contain" alt="Zoomed uploaded receipt" />
+      </div>
+    </div>
+  </div>
+
+  <div id="live-scan-modal"
+    class="fixed inset-0 z-[65] hidden bg-stone-950/80" role="dialog"
+    aria-modal="true" aria-labelledby="live-scan-title">
+    <div class="flex h-full w-full flex-col bg-white">
+      <div class="flex shrink-0 items-center justify-between border-b border-stone-100 px-4 py-3">
+        <div>
+          <h2 id="live-scan-title" class="font-black">Live receipt scan</h2>
+          <p class="mt-0.5 text-xs text-stone-500">Point your camera at the receipt.</p>
+        </div>
+        <button id="close-live-scan-btn" type="button"
+          class="rounded-lg px-2 text-xl text-stone-400 hover:bg-stone-100" aria-label="Close">×</button>
+      </div>
+      <div class="flex min-h-0 flex-1 flex-col sm:flex-row">
+        <div class="relative h-1/2 shrink-0 bg-stone-900 sm:h-auto sm:w-1/2">
+          <video id="live-scan-video" autoplay playsinline muted class="h-full w-full object-contain"
+            aria-label="Live camera preview"></video>
+          <div id="live-scan-overlay" class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="h-3/4 w-[85%] rounded-2xl border-2 border-dashed border-orange-400/70"></div>
+          </div>
+          <button id="focus-camera-btn" type="button" aria-label="Focus camera"
+            class="absolute bottom-3 right-3 grid h-10 w-10 place-items-center rounded-full bg-black/60 text-white hover:bg-black/80">
+            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2"><circle cx="12" cy="12" r="3"/><path d="M12 5v2M12 17v2M5 12h2M17 12h2"/></svg>
+          </button>
+        </div>
+        <div class="flex min-h-0 flex-1 flex-col border-t border-stone-100 sm:w-1/2 sm:border-l sm:border-t-0">
+          <div class="shrink-0 border-b border-stone-100 px-4 py-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold uppercase tracking-wide text-stone-500">Detected items</h3>
+              <span id="live-scan-count" class="rounded-full bg-orange-100 px-2 py-0.5 text-xs font-bold text-orange-700">0</span>
+            </div>
+          </div>
+          <div id="live-scan-results" class="flex-1 overflow-y-auto p-3">
+            <p class="p-4 text-center text-sm text-stone-400">Scanning… items will appear here as they're found.</p>
+          </div>
+          <div class="shrink-0 border-t border-stone-100 p-3">
+            <button id="live-scan-done-btn" type="button"
+              class="w-full rounded-xl bg-orange-500 px-4 py-3 font-bold text-white hover:bg-orange-600">
+              Done — add items
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1592,6 +1641,10 @@
       document.body.style.overflow = "hidden";
       document.querySelector("#close-ocr-text-modal-btn").focus();
     }
+    let cameraStream = null;
+    let liveScanState = { active: false, detected: [], scanTimer: null, ocrWorker: null };
+
+
     function closeReceiptZoom() {
       document.querySelector("#receipt-zoom-modal").classList.add("hidden");
       document.body.style.overflow = "";
@@ -1605,6 +1658,165 @@
         .classList.remove("hidden");
       document.body.style.overflow = "hidden";
       document.querySelector("#close-receipt-zoom-btn").focus();
+    }
+    function renderLiveScanResults() {
+      const container = document.querySelector("#live-scan-results");
+      const count = document.querySelector("#live-scan-count");
+      count.textContent = liveScanState.detected.length;
+      if (!liveScanState.detected.length) {
+        container.innerHTML = `<p class="p-4 text-center text-sm text-stone-400">Scanning… items will appear here as they're found.</p>`;
+        return;
+      }
+      container.innerHTML = liveScanState.detected
+        .map(
+          (item, i) =>
+            `<div class="flex items-center gap-2 rounded-xl border border-stone-100 bg-stone-50 px-3 py-2 mb-2 ${item.isNew ? "ring-2 ring-orange-300" : ""}">
+<input data-live-name="${i}" value="${esc(item.name)}" class="min-w-0 flex-1 rounded-lg bg-transparent px-2 py-1.5 text-sm font-medium outline-none ring-orange-300 focus:bg-white focus:ring-2" />
+<input data-live-price="${i}" type="number" step="0.01" min="0" value="${Number(item.price).toFixed(2)}" class="w-20 shrink-0 rounded-lg bg-transparent px-2 py-1.5 text-right text-sm font-semibold outline-none ring-orange-300 focus:bg-white focus:ring-2" />
+<button data-live-delete="${i}" aria-label="Remove item" class="shrink-0 rounded-lg p-1.5 text-stone-400 hover:bg-red-50 hover:text-red-500">
+<svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+</button></div>`,
+        )
+        .join("");
+      container.scrollTop = container.scrollHeight;
+    }
+    function finishLiveScan() {
+      if (!liveScanState.active) return;
+      liveScanState.active = false;
+      clearTimeout(liveScanState.scanTimer);
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((t) => t.stop());
+        cameraStream = null;
+      }
+      if (liveScanState.ocrWorker) {
+        liveScanState.ocrWorker.terminate();
+        liveScanState.ocrWorker = null;
+      }
+      document.querySelector("#live-scan-video").srcObject = null;
+      const modal = document.querySelector("#live-scan-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "";
+      if (liveScanState.detected.length) {
+        const newItems = liveScanState.detected.filter((d) => !d.added);
+        newItems.forEach((item) => {
+          state.items.push({ id: id(), name: item.name, price: item.price });
+        });
+        state.assignments = {};
+        renderItems();
+        document.querySelector("#items-review").scrollIntoView({ behavior: "smooth", block: "start" });
+        if (newItems.length) {
+          showAssignmentToast(`${newItems.length} item${newItems.length === 1 ? "" : "s"} added from scan.`);
+        } else {
+          showAssignmentToast("No new items detected.");
+        }
+      } else {
+        showAssignmentToast("No items detected.");
+      }
+      liveScanState.detected = [];
+    }
+    async function processLiveScanFrame() {
+      if (!liveScanState.active) return;
+      const video = document.querySelector("#live-scan-video");
+      if (!video.videoWidth) {
+        liveScanState.scanTimer = setTimeout(processLiveScanFrame, 500);
+        return;
+      }
+      const canvas = document.createElement("canvas");
+      const maxDim = 1200;
+      const scale = Math.min(maxDim / video.videoWidth, maxDim / video.videoHeight, 1);
+      canvas.width = Math.round(video.videoWidth * scale);
+      canvas.height = Math.round(video.videoHeight * scale);
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      try {
+        if (!liveScanState.ocrWorker) {
+          showAssignmentToast("Loading OCR engine…");
+          liveScanState.ocrWorker = await Tesseract.createWorker("eng", 1, {
+            logger: () => {},
+          });
+          await liveScanState.ocrWorker.setParameters({
+            tessedit_pageseg_mode: "6",
+            preserve_interword_spaces: "1",
+          });
+        }
+        const { data } = await liveScanState.ocrWorker.recognize(canvas);
+        const found = extractItems(data.text);
+        const existing = new Set(liveScanState.detected.map((d) => `${d.name.toLowerCase()}|${Math.round(d.price * 100)}`));
+        const fresh = [];
+        found.forEach((item) => {
+          const key = `${item.name.toLowerCase()}|${Math.round(item.price * 100)}`;
+          if (!existing.has(key)) {
+            existing.add(key);
+            const entry = { ...item, isNew: true, added: false };
+            fresh.push(entry);
+            liveScanState.detected.push(entry);
+          }
+        });
+        if (fresh.length) {
+          liveScanState.detected.forEach((d) => (d.isNew = false));
+          fresh.forEach((d) => (d.isNew = true));
+          renderLiveScanResults();
+          if ("vibrate" in navigator) navigator.vibrate(50);
+        }
+      } catch (err) {
+        console.error("Live scan OCR error:", err);
+      }
+      liveScanState.scanTimer = setTimeout(processLiveScanFrame, 1500);
+    }
+    async function openLiveScan() {
+      if (!navigator.mediaDevices?.getUserMedia) {
+        showAssignmentToast("Camera not supported on this device.");
+        return;
+      }
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" } },
+          audio: false,
+        });
+        const video = document.querySelector("#live-scan-video");
+        video.srcObject = cameraStream;
+        await video.play();
+        liveScanState.active = true;
+        liveScanState.detected = [];
+        const modal = document.querySelector("#live-scan-modal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        document.body.style.overflow = "hidden";
+        renderLiveScanResults();
+        processLiveScanFrame();
+      } catch (error) {
+        console.error(error);
+        if (cameraStream) {
+          cameraStream.getTracks().forEach((t) => t.stop());
+          cameraStream = null;
+        }
+        showAssignmentToast("Camera permission was blocked.");
+      }
+    }
+    function closeLiveScan() {
+      if (!liveScanState.active) {
+        const modal = document.querySelector("#live-scan-modal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+        return;
+      }
+      liveScanState.active = false;
+      clearTimeout(liveScanState.scanTimer);
+      if (cameraStream) {
+        cameraStream.getTracks().forEach((t) => t.stop());
+        cameraStream = null;
+      }
+      if (liveScanState.ocrWorker) {
+        liveScanState.ocrWorker.terminate();
+        liveScanState.ocrWorker = null;
+      }
+      document.querySelector("#live-scan-video").srcObject = null;
+      const modal = document.querySelector("#live-scan-modal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      document.body.style.overflow = "";
+      liveScanState.detected = [];
     }
     document
       .querySelector("#receipt-input")
@@ -1664,6 +1876,61 @@
         if (event.target.id === "receipt-zoom-modal") closeReceiptZoom();
       });
     document
+      .querySelector("#live-scan-btn")
+      .addEventListener("click", openLiveScan);
+    document
+      .querySelector("#close-live-scan-btn")
+      .addEventListener("click", closeLiveScan);
+    document
+      .querySelector("#focus-camera-btn")
+      .addEventListener("click", () => {
+        const track = cameraStream?.getVideoTracks()[0];
+        if (!track) return;
+        const caps = track.getCapabilities();
+        if (caps.focusMode?.includes("continuous")) {
+          track.applyConstraints({ advanced: [{ focusMode: "continuous" }] }).catch(() => {});
+        } else if (caps.focusMode?.includes("auto")) {
+          track.applyConstraints({ advanced: [{ focusMode: "auto" }] }).catch(() => {});
+        }
+        if (caps.pointsOfInterest) {
+          track.applyConstraints({ advanced: [{ pointsOfInterest: [{ x: 0.5, y: 0.5 }] }] }).catch(() => {});
+        }
+      });
+    document
+      .querySelector("#live-scan-done-btn")
+      .addEventListener("click", finishLiveScan);
+    document
+      .querySelector("#live-scan-modal")
+      .addEventListener("click", (event) => {
+        if (event.target.id === "live-scan-modal") closeLiveScan();
+      });
+    document
+      .querySelector("#live-scan-results")
+      .addEventListener("input", (e) => {
+        const nameInput = e.target.closest("[data-live-name]");
+        if (nameInput) {
+          const idx = +nameInput.dataset.liveName;
+          liveScanState.detected[idx].name = nameInput.value;
+          return;
+        }
+        const priceInput = e.target.closest("[data-live-price]");
+        if (priceInput) {
+          const idx = +priceInput.dataset.livePrice;
+          const price = parseFloat(priceInput.value);
+          if (!isNaN(price) && price >= 0) liveScanState.detected[idx].price = roundMoney(price);
+        }
+      });
+    document
+      .querySelector("#live-scan-results")
+      .addEventListener("click", (e) => {
+        const delBtn = e.target.closest("[data-live-delete]");
+        if (delBtn) {
+          const idx = +delBtn.dataset.liveDelete;
+          liveScanState.detected.splice(idx, 1);
+          renderLiveScanResults();
+        }
+      });
+    document
       .querySelector("#view-ocr-text-btn")
       .addEventListener("click", openOcrTextModal);
     document
@@ -1680,6 +1947,7 @@
         closeSplitModal();
         closeItemPicker();
         closeOcrTextModal();
+        closeLiveScan();
       }
     });
     document.querySelector("#sample-btn").addEventListener("click", () => {
@@ -1892,6 +2160,7 @@
       if (confirm("Clear this bill and start again?")) {
         closeSplitModal();
         closeItemPicker();
+        closeLiveScan();
         state.items = [];
         state.people = [];
         state.assignments = {};
@@ -1923,13 +2192,15 @@
         ? savedTheme === "dark"
         : window.matchMedia("(prefers-color-scheme: dark)").matches,
     );
-    if (!navigator.mediaDevices?.enumerateDevices) {
+    const hideCameraButtons = () => {
       document.querySelector("label:has(> #camera-input)").classList.add("hidden");
+      document.querySelector("#live-scan-btn").classList.add("hidden");
+    };
+    if (!navigator.mediaDevices?.enumerateDevices) {
+      hideCameraButtons();
     } else {
       navigator.mediaDevices.enumerateDevices().then((devices) => {
-        const hasCamera = devices.some((d) => d.kind === "videoinput");
-        if (!hasCamera)
-          document.querySelector("label:has(> #camera-input)").classList.add("hidden");
+        if (!devices.some((d) => d.kind === "videoinput")) hideCameraButtons();
       });
     }
     renderItems();
